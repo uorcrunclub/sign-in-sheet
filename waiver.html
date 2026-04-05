@@ -459,11 +459,16 @@
         return;
       }
 
+      sessionStorage.removeItem('uorcWaiverData');
+      
       const waiverData = {
         waiverAccepted: 'Yes',
         signature: fullLegalName.value.trim(),
-        signedAt: new Date().toISOString()
+        signedAt: new Date().toISOString(),
+        waiverFlowToken: crypto.randomUUID()
       };
+
+sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
 
       sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
 
