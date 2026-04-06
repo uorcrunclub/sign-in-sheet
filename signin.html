@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UORC Sign-In</title>
 
-  <!-- Apple Icons -->
   <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
   <link rel="apple-touch-icon" sizes="167x167" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
   <link rel="apple-touch-icon" sizes="152x152" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
@@ -16,218 +15,495 @@
   <meta name="apple-mobile-web-app-title" content="UORC Sign-In">
 
   <style>
+    :root {
+      --bg: #000;
+      --panel: #111;
+      --panel-2: #1a1a1a;
+      --text: #fff;
+      --muted: #c7c7c7;
+      --accent: #0078d4;
+      --accent-hover: #106ebe;
+      --border: #2a2a2a;
+      --danger: #ff4d4f;
+      --success: #2fb344;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      background: #000;
-      color: #fff;
+      background: var(--bg);
+      color: var(--text);
       font-family: Arial, sans-serif;
-      padding: 20px;
+      padding: 20px 14px 28px;
     }
 
     .container {
-      max-width: 600px;
+      max-width: 720px;
       margin: auto;
     }
 
-    h1 {
-      margin-bottom: 10px;
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
     }
 
-    .card {
-      background: #111;
-      border-radius: 16px;
+    .header {
+      padding: 24px 20px 18px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #111111 0%, #0b0b0b 100%);
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.15;
+    }
+
+    .subtext {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .content {
       padding: 20px;
-      border: 1px solid #2a2a2a;
+    }
+
+    .waiver-status {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .waiver-status strong {
+      color: var(--text);
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 700;
     }
 
     input {
       width: 100%;
-      padding: 14px;
-      margin-top: 6px;
-      margin-bottom: 14px;
-      border-radius: 10px;
+      padding: 15px 14px;
+      border-radius: 12px;
       border: 1px solid #333;
       background: #0d0d0d;
-      color: white;
+      color: #fff;
       font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.18);
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin-top: -2px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
     }
 
     button {
-      width: 100%;
-      padding: 16px;
-      border-radius: 12px;
       border: none;
+      border-radius: 12px;
+      padding: 15px 18px;
       font-size: 16px;
-      font-weight: bold;
+      font-weight: 700;
       cursor: pointer;
-      margin-top: 10px;
     }
 
     .primary {
-      background: #0078d4;
+      background: var(--accent);
       color: white;
+      flex: 1 1 220px;
+    }
+
+    .primary:hover {
+      background: var(--accent-hover);
     }
 
     .secondary {
       background: #2b2b2b;
       color: white;
+      border: 1px solid #3a3a3a;
+      flex: 1 1 180px;
     }
 
-    .locked {
-      opacity: 0.35;
-      pointer-events: none;
+    .message {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+      display: none;
+    }
+
+    .message.error {
+      display: block;
+      background: rgba(255, 77, 79, 0.12);
+      border: 1px solid rgba(255, 77, 79, 0.35);
+      color: #ffd5d5;
+    }
+
+    .locked-screen,
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 36px 20px 30px;
+    }
+
+    .locked-screen.show,
+    .success-screen.show {
+      display: block;
+    }
+
+    .locked-screen h2,
+    .success-screen h2 {
+      margin: 0 0 12px;
+      font-size: 28px;
+    }
+
+    .locked-screen p,
+    .success-screen p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.5;
     }
 
     .hidden {
       display: none;
     }
 
-    .message {
-      margin-top: 12px;
-      font-size: 14px;
-    }
-
-    .success {
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
       text-align: center;
-      padding: 40px 20px;
     }
 
-    .success h2 {
-      font-size: 28px;
-      margin-bottom: 10px;
+    @media (max-width: 640px) {
+      body {
+        padding: 12px 10px 18px;
+      }
+
+      .header {
+        padding: 20px 16px 16px;
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .primary,
+      .secondary {
+        width: 100%;
+      }
     }
   </style>
 </head>
-
 <body>
 <div class="container">
+  <div class="card">
+    <div class="header">
+      <div class="eyebrow">UORC Check-In</div>
+      <h1>Participant Sign-In</h1>
+      <div class="subtext">Complete the fields below to finish check-in.</div>
+    </div>
 
-  <div class="card" id="formContainer">
-    <h1>Participant Sign-In</h1>
+    <div class="content" id="formContainer">
+      <div class="waiver-status" id="waiverStatus">Checking waiver status...</div>
 
-    <div id="waiverStatus" class="message"></div>
+      <form id="form" novalidate>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="firstName">First Name</label>
+            <input id="firstName" name="firstName" required autocomplete="given-name">
+          </div>
 
-    <form id="form">
-      <input id="firstName" placeholder="First Name" required>
-      <input id="lastName" placeholder="Last Name" required>
-      <input id="email" placeholder="Email (optional)">
-      <input id="emergencyName" placeholder="Emergency Contact Name" required>
-      <input id="emergencyPhone" placeholder="Emergency Contact Phone" required>
+          <div class="field-group">
+            <label for="lastName">Last Name</label>
+            <input id="lastName" name="lastName" required autocomplete="family-name">
+          </div>
+        </div>
 
-      <button type="submit" class="primary" id="submitBtn">Check In</button>
-      <button type="button" class="secondary" id="backBtn">Back to Waiver</button>
+        <div class="field-group">
+          <label for="email">Email Address</label>
+          <input id="email" name="email" type="email" autocomplete="email">
+          <div class="helper">Optional.</div>
+        </div>
 
-      <div id="message" class="message"></div>
-    </form>
+        <div class="field-group">
+          <label for="phone">Phone Number</label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel">
+          <div class="helper">Optional.</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label for="emergencyName">Emergency Contact Name</label>
+            <input id="emergencyName" name="emergencyName" required>
+          </div>
+
+          <div class="field-group">
+            <label for="emergencyPhone">Emergency Contact Phone</label>
+            <input id="emergencyPhone" name="emergencyPhone" type="tel" required autocomplete="tel">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="primary" id="submitBtn">Check In</button>
+          <button type="button" class="secondary" id="backBtn">Back to Waiver</button>
+        </div>
+
+        <div id="message" class="message"></div>
+      </form>
+    </div>
+
+    <div id="lockedScreen" class="locked-screen">
+      <h2>Waiver Required</h2>
+      <p>You must complete the waiver before signing in.</p>
+      <button id="goToWaiver" class="primary">Go to Waiver</button>
+    </div>
+
+    <div id="successScreen" class="success-screen">
+      <h2>You're checked in</h2>
+      <p>Have a great run.</p>
+      <button id="nextBtn" class="primary">Check In Another Participant</button>
+    </div>
   </div>
 
-  <!-- LOCKED SCREEN -->
-  <div id="lockedScreen" class="hidden success">
-    <h2>Waiver Required</h2>
-    <p>You must complete the waiver before signing in.</p>
-    <button id="goToWaiver" class="primary">Go to Waiver</button>
-  </div>
-
-  <!-- SUCCESS SCREEN -->
-  <div id="successScreen" class="hidden success">
-    <h2>You're checked in</h2>
-    <p>Have a great run.</p>
-
-    <button id="nextBtn" class="primary">
-      Check In Another Participant
-    </button>
-  </div>
-
+  <div class="footer-note">UORC participant sign-in</div>
 </div>
 
 <script>
-const form = document.getElementById('form');
-const formContainer = document.getElementById('formContainer');
-const successScreen = document.getElementById('successScreen');
-const lockedScreen = document.getElementById('lockedScreen');
-const waiverStatus = document.getElementById('waiverStatus');
-const message = document.getElementById('message');
+  const form = document.getElementById('form');
+  const formContainer = document.getElementById('formContainer');
+  const successScreen = document.getElementById('successScreen');
+  const lockedScreen = document.getElementById('lockedScreen');
+  const waiverStatus = document.getElementById('waiverStatus');
+  const message = document.getElementById('message');
 
-const APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+  const firstNameInput = document.getElementById('firstName');
+  const lastNameInput = document.getElementById('lastName');
+  const emailInput = document.getElementById('email');
+  const phoneInput = document.getElementById('phone');
+  const emergencyNameInput = document.getElementById('emergencyName');
+  const emergencyPhoneInput = document.getElementById('emergencyPhone');
+  const submitBtn = document.getElementById('submitBtn');
 
-function getWaiverData() {
-  try {
-    return JSON.parse(sessionStorage.getItem('uorcWaiverData'));
-  } catch {
-    return null;
+  const APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+  function getWaiverData() {
+    try {
+      return JSON.parse(sessionStorage.getItem('uorcWaiverData'));
+    } catch {
+      return null;
+    }
   }
-}
 
-function validateAccess() {
-  const data = getWaiverData();
-
-  if (!data || data.waiverAccepted !== 'Yes' || !data.signature || !data.waiverFlowToken) {
-    formContainer.classList.add('hidden');
-    lockedScreen.classList.remove('hidden');
-    return null;
+  function showMessage(text, type) {
+    message.textContent = text;
+    message.className = 'message ' + type;
   }
 
-  waiverStatus.innerHTML = `Waiver signed by <strong>${data.signature}</strong>`;
-  return data;
-}
+  function clearMessage() {
+    message.textContent = '';
+    message.className = 'message';
+  }
 
-document.getElementById('goToWaiver').onclick = () => {
-  window.location.href = 'waiver.html';
-};
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
 
-document.getElementById('backBtn').onclick = () => {
-  window.location.href = 'waiver.html';
-};
+  function validateAccess() {
+    const data = getWaiverData();
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const waiver = getWaiverData();
-  if (!waiver) return;
-
-  const payload = new URLSearchParams();
-  payload.append('firstName', firstName.value.trim());
-  payload.append('lastName', lastName.value.trim());
-  payload.append('email', email.value.trim());
-  payload.append('emergencyName', emergencyName.value.trim());
-  payload.append('emergencyPhone', emergencyPhone.value.trim());
-  payload.append('waiverAcceptance', waiver.waiverAccepted);
-  payload.append('signature', waiver.signature);
-
-  try {
-    if (APPS_SCRIPT_URL.includes('PASTE')) {
-      console.log('TEST MODE:', Object.fromEntries(payload.entries()));
-    } else {
-      await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        body: payload
-      });
+    if (!data || data.waiverAccepted !== 'Yes' || !data.signature || !data.waiverFlowToken) {
+      formContainer.classList.add('hidden');
+      lockedScreen.classList.add('show');
+      return null;
     }
 
-    formContainer.classList.add('hidden');
-    successScreen.classList.remove('hidden');
+    waiverStatus.innerHTML = `Waiver signed by <strong>${escapeHtml(data.signature)}</strong>`;
 
-  } catch (err) {
-    message.textContent = 'Submission failed. Try again.';
+    if (data.firstName) {
+      firstNameInput.value = data.firstName;
+    }
+
+    if (data.lastName) {
+      lastNameInput.value = data.lastName;
+    }
+
+    return data;
   }
-});
 
-document.getElementById('nextBtn').onclick = () => {
-  // 🔥 CLEAR EVERYTHING FOR NEXT USER
-  sessionStorage.removeItem('uorcWaiverData');
+  function validateForm() {
+    if (!firstNameInput.value.trim()) {
+      showMessage('Please enter your first name.', 'error');
+      firstNameInput.focus();
+      return false;
+    }
 
-  // reset UI
-  successScreen.classList.add('hidden');
-  formContainer.classList.remove('hidden');
-  form.reset();
+    if (!lastNameInput.value.trim()) {
+      showMessage('Please enter your last name.', 'error');
+      lastNameInput.focus();
+      return false;
+    }
 
-  // force full restart of flow
-  window.location.href = 'waiver.html';
-};
+    const email = emailInput.value.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showMessage('Please enter a valid email address.', 'error');
+      emailInput.focus();
+      return false;
+    }
 
-// INIT
-validateAccess();
+    if (!emergencyNameInput.value.trim()) {
+      showMessage('Please enter an emergency contact name.', 'error');
+      emergencyNameInput.focus();
+      return false;
+    }
+
+    if (!emergencyPhoneInput.value.trim()) {
+      showMessage('Please enter an emergency contact phone number.', 'error');
+      emergencyPhoneInput.focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  document.getElementById('goToWaiver').onclick = () => {
+    window.location.href = 'waiver.html';
+  };
+
+  document.getElementById('backBtn').onclick = () => {
+    window.location.href = 'waiver.html';
+  };
+
+  document.getElementById('nextBtn').onclick = () => {
+    sessionStorage.removeItem('uorcWaiverData');
+    form.reset();
+    successScreen.classList.remove('show');
+    window.location.href = 'waiver.html';
+  };
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearMessage();
+
+    const waiver = getWaiverData();
+    if (!waiver) {
+      showMessage('Waiver information is missing. Please complete the waiver again.', 'error');
+      return;
+    }
+
+    if (!validateForm()) {
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    const payload = new URLSearchParams();
+    payload.append('firstName', firstNameInput.value.trim());
+    payload.append('lastName', lastNameInput.value.trim());
+    payload.append('email', emailInput.value.trim());
+    payload.append('phone', phoneInput.value.trim());
+    payload.append('emergencyName', emergencyNameInput.value.trim());
+    payload.append('emergencyPhone', emergencyPhoneInput.value.trim());
+    payload.append('waiverAcceptance', waiver.waiverAccepted);
+    payload.append('signature', waiver.signature);
+    payload.append('waiverSignedAt', waiver.signedAt || '');
+
+    try {
+      if (APPS_SCRIPT_URL.includes('PASTE')) {
+        console.log('TEST MODE:', Object.fromEntries(payload.entries()));
+      } else {
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: payload
+        });
+
+        const text = await response.text();
+
+        if (!response.ok || text.toUpperCase().includes('ERROR')) {
+          throw new Error(text || 'Submission failed.');
+        }
+      }
+
+      formContainer.classList.add('hidden');
+      successScreen.classList.add('show');
+    } catch (err) {
+      showMessage('Submission failed. Try again.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Check In';
+    }
+  });
+
+  validateAccess();
 </script>
-
 </body>
 </html>
