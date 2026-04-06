@@ -234,16 +234,6 @@
       lastName: splitName.lastName
     };
 
-    sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
-
-    showMessage('Waiver accepted. Redirecting to sign-in...', 'success');
-
-    setTimeout(() => {
-      window.location.href = 'signin.html';
-    }, 700);
-  });
-</script>
-
 sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
 
       sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
