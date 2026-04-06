@@ -29,7 +29,8 @@
     <div class="content" id="formContainer">
       <div class="waiver-status" id="waiverStatus">Checking waiver status...</div>
 
-      <form id="form" novalidate>
+      <form id="form" method="POST" target="submitFrame" action="https://script.google.com/macros/s/AKfycbzoSr6z6FLDflWNBxVFStb65qJzc2EspLHPYj0ZG8LmKxZBR1V7MEu96vgxtwdc2NOfzg/exec" novalidate>
+        
         <div class="field-row">
           <div class="field-group">
             <label for="firstName">First Name</label>
@@ -90,7 +91,7 @@
 
   <div class="footer-note">UORC participant sign-in | v1.0</div>
 </div>
-
+<iframe name="submitFrame" id="submitFrame" style="display:none;"></iframe>
 <script>
   const form = document.getElementById('form');
   const formContainer = document.getElementById('formContainer');
