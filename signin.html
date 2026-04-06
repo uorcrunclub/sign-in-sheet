@@ -295,10 +295,10 @@
           body: payload
         });
 
-        const text = await response.text();
+        const result = await response.json();
 
-        if (!response.ok || text.toUpperCase().includes('ERROR')) {
-          throw new Error(text || 'Submission failed.');
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Submission failed.');
         }
       }
 
