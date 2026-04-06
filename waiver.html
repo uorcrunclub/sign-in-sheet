@@ -120,68 +120,24 @@
     </div>
   </div>
 
-  <script>
-    const agreeCheckbox = document.getElementById('agreeCheckbox');
-    const signatureSection = document.getElementById('signatureSection');
-    const fullLegalName = document.getElementById('fullLegalName');
-    const continueBtn = document.getElementById('continueBtn');
-    const declineBtn = document.getElementById('declineBtn');
-    const messageBox = document.getElementById('messageBox');
+ <script>
+  const agreeCheckbox = document.getElementById('agreeCheckbox');
+  const signatureSection = document.getElementById('signatureSection');
+  const fullLegalName = document.getElementById('fullLegalName');
+  const continueBtn = document.getElementById('continueBtn');
+  const declineBtn = document.getElementById('declineBtn');
+  const messageBox = document.getElementById('messageBox');
 
-    function showMessage(text, type) {
-      messageBox.textContent = text;
-      messageBox.className = 'message ' + type;
-    }
+  function showMessage(text, type) {
+    messageBox.textContent = text;
+    messageBox.className = 'message ' + type;
+  }
 
-    function clearMessage() {
-      messageBox.textContent = '';
-      messageBox.className = 'message';
-    }
+  function clearMessage() {
+    messageBox.textContent = '';
+    messageBox.className = 'message';
+  }
 
-    agreeCheckbox.addEventListener('change', () => {
-      clearMessage();
-
-      if (agreeCheckbox.checked) {
-        signatureSection.classList.add('show');
-        setTimeout(() => fullLegalName.focus(), 50);
-      } else {
-        signatureSection.classList.remove('show');
-        fullLegalName.value = '';
-      }
-    });
-
-    declineBtn.addEventListener('click', () => {
-      agreeCheckbox.checked = false;
-      signatureSection.classList.remove('show');
-      fullLegalName.value = '';
-      showMessage(
-        'You must agree to the waiver to participate in the event.',
-        'error'
-      );
-    });
-
-    continueBtn.addEventListener('click', () => {
-      clearMessage();
-
-      if (!agreeCheckbox.checked) {
-        showMessage(
-          'Please read the waiver and check the agreement box before continuing.',
-          'error'
-        );
-        return;
-      }
-
-      if (!fullLegalName.value.trim()) {
-        showMessage(
-          'Please type your full legal name to provide your electronic signature.',
-          'error'
-        );
-        fullLegalName.focus();
-        return;
-      }
-
-      sessionStorage.removeItem('uorcWaiverData');
-      
   function splitFullName(fullName) {
     const cleaned = fullName.trim().replace(/\s+/g, ' ');
     if (!cleaned) {
@@ -199,6 +155,28 @@
       lastName: parts.slice(-1).join('')
     };
   }
+
+  agreeCheckbox.addEventListener('change', () => {
+    clearMessage();
+
+    if (agreeCheckbox.checked) {
+      signatureSection.classList.add('show');
+      setTimeout(() => fullLegalName.focus(), 50);
+    } else {
+      signatureSection.classList.remove('show');
+      fullLegalName.value = '';
+    }
+  });
+
+  declineBtn.addEventListener('click', () => {
+    agreeCheckbox.checked = false;
+    signatureSection.classList.remove('show');
+    fullLegalName.value = '';
+    showMessage(
+      'You must agree to the waiver to participate in the event.',
+      'error'
+    );
+  });
 
   continueBtn.addEventListener('click', () => {
     clearMessage();
@@ -234,16 +212,14 @@
       lastName: splitName.lastName
     };
 
-sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
+    sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
 
-      sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
+    showMessage('Waiver accepted. Redirecting to sign-in...', 'success');
 
-      showMessage('Waiver accepted. Redirecting to sign-in...', 'success');
-
-      setTimeout(() => {
-        window.location.href = 'signin.html';
-      }, 700);
-    });
-  </script>
+    setTimeout(() => {
+      window.location.href = 'signin.html';
+    }, 700);
+  });
+</script>
 </body>
 </html>
