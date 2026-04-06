@@ -461,12 +461,68 @@
 
       sessionStorage.removeItem('uorcWaiverData');
       
-      const waiverData = {
-        waiverAccepted: 'Yes',
-        signature: fullLegalName.value.trim(),
-        signedAt: new Date().toISOString(),
-        waiverFlowToken: crypto.randomUUID()
-      };
+<script>
+  function splitFullName(fullName) {
+    const cleaned = fullName.trim().replace(/\s+/g, ' ');
+    if (!cleaned) {
+      return { firstName: '', lastName: '' };
+    }
+
+    const parts = cleaned.split(' ');
+
+    if (parts.length === 1) {
+      return { firstName: parts[0], lastName: '' };
+    }
+
+    return {
+      firstName: parts.slice(0, -1).join(' '),
+      lastName: parts.slice(-1).join('')
+    };
+  }
+
+  continueBtn.addEventListener('click', () => {
+    clearMessage();
+
+    if (!agreeCheckbox.checked) {
+      showMessage(
+        'Please read the waiver and check the agreement box before continuing.',
+        'error'
+      );
+      return;
+    }
+
+    if (!fullLegalName.value.trim()) {
+      showMessage(
+        'Please type your full legal name to provide your electronic signature.',
+        'error'
+      );
+      fullLegalName.focus();
+      return;
+    }
+
+    const signatureName = fullLegalName.value.trim();
+    const splitName = splitFullName(signatureName);
+
+    sessionStorage.removeItem('uorcWaiverData');
+
+    const waiverData = {
+      waiverAccepted: 'Yes',
+      signature: signatureName,
+      signedAt: new Date().toISOString(),
+      waiverFlowToken: crypto.randomUUID(),
+      firstName: splitName.firstName,
+      lastName: splitName.lastName
+    };
+
+    sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
+
+    showMessage('Waiver accepted. Redirecting to sign-in...', 'success');
+
+    setTimeout(() => {
+      window.location.href = 'signin.html';
+    }, 700);
+  });
+</script>
 
 sessionStorage.setItem('uorcWaiverData', JSON.stringify(waiverData));
 
