@@ -271,38 +271,59 @@
   };
 
   form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    clearMessage();
+  e.preventDefault();
+  clearMessage();
 
-    const waiver = getWaiverData();
-    if (!waiver) {
-      showMessage('Waiver information is missing. Please complete the waiver again.', 'error');
-      return;
-    }
+  const waiver = getWaiverData();
+  if (!waiver) {
+    showMessage('Waiver information is missing. Please complete the waiver again.', 'error');
+    return;
+  }
 
-    if (!validateForm()) {
-      return;
-    }
+  if (!validateForm()) {
+    return;
+  }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
 
-    phoneInput.value = digitsOnly(phoneInput.value.trim());
-    emergencyPhoneInput.value = digitsOnly(emergencyPhoneInput.value.trim());
-    waiverAcceptanceInput.value = waiver.waiverAccepted;
-    signatureInput.value = waiver.signature;
-    waiverSignedAtInput.value = waiver.signedAt || '';
+  phoneInput.value = digitsOnly(phoneInput.value.trim());
+  emergencyPhoneInput.value = digitsOnly(emergencyPhoneInput.value.trim());
+  waiverAcceptanceInput.value = waiver.waiverAccepted;
+  signatureInput.value = waiver.signature;
+  waiverSignedAtInput.value = waiver.signedAt || '';
 
-    form.submit();
-
-    formContainer.classList.add('hidden');
-    successScreen.classList.add('show');
+  form.submit();
   });
-
+  
   attachPhoneFormatter(phoneInput);
   attachPhoneFormatter(emergencyPhoneInput);
 
   validateAccess();
+
+  window.addEventListener('message', (event) => {
+  if (event.origin !== 'https://script.googleusercontent.com' &&
+      event.origin !== 'https://script.google.com') {
+    return;
+  }
+
+  const data = event.data;
+  if (!data || typeof data !== 'object') {
+    return;
+  }
+
+  if (data.success === true) {
+    formContainer.classList.add('hidden');
+    successScreen.classList.add('show');
+    return;
+  }
+
+  if (data.success === false) {
+    showMessage(data.message || 'Submission failed.', 'error');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Check In';
+  }
+  });
 </script>
 </body>
 </html>
