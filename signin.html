@@ -73,6 +73,11 @@
         </div>
 
         <div id="message" class="message"></div>
+        
+        <input type="hidden" id="waiverAcceptance" name="waiverAcceptance">
+        <input type="hidden" id="signature" name="signature">
+        <input type="hidden" id="waiverSignedAt" name="waiverSignedAt">
+        
       </form>
     </div>
 
@@ -92,12 +97,10 @@
   <div class="footer-note">UORC participant sign-in | v1.0</div>
 </div>
   
-<input type="hidden" id="waiverAcceptance" name="waiverAcceptance">
-<input type="hidden" id="signature" name="signature">
-<input type="hidden" id="waiverSignedAt" name="waiverSignedAt">
+
 <iframe name="submitFrame" id="submitFrame" style="display:none;"></iframe>
 
-  <script>
+<script>
   const form = document.getElementById('form');
   const formContainer = document.getElementById('formContainer');
   const successScreen = document.getElementById('successScreen');
@@ -113,7 +116,9 @@
   const emergencyPhoneInput = document.getElementById('emergencyPhone');
   const submitBtn = document.getElementById('submitBtn');
 
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoSr6z6FLDflWNBxVFStb65qJzc2EspLHPYj0ZG8LmKxZBR1V7MEu96vgxtwdc2NOfzg/exec';
+  const waiverAcceptanceInput = document.getElementById('waiverAcceptance');
+  const signatureInput = document.getElementById('signature');
+  const waiverSignedAtInput = document.getElementById('waiverSignedAt');
 
   function getWaiverData() {
     try {
@@ -244,6 +249,7 @@
       emergencyPhoneInput.focus();
       return false;
     }
+
     emergencyPhoneInput.value = formatPhoneInput(emergencyPhone);
 
     return true;
@@ -264,73 +270,33 @@
     window.location.href = 'waiver.html';
   };
 
-    form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
     clearMessage();
-  
+
     const waiver = getWaiverData();
     if (!waiver) {
       showMessage('Waiver information is missing. Please complete the waiver again.', 'error');
       return;
     }
-  
+
     if (!validateForm()) {
       return;
     }
-  
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
-  
-    document.getElementById('phone').value = digitsOnly(phoneInput.value.trim());
-    document.getElementById('emergencyPhone').value = digitsOnly(emergencyPhoneInput.value.trim());
-    document.getElementById('waiverAcceptance').value = waiver.waiverAccepted;
-    document.getElementById('signature').value = waiver.signature;
-    document.getElementById('waiverSignedAt').value = waiver.signedAt || '';
-  
+
+    phoneInput.value = digitsOnly(phoneInput.value.trim());
+    emergencyPhoneInput.value = digitsOnly(emergencyPhoneInput.value.trim());
+    waiverAcceptanceInput.value = waiver.waiverAccepted;
+    signatureInput.value = waiver.signature;
+    waiverSignedAtInput.value = waiver.signedAt || '';
+
     form.submit();
-  
+
     formContainer.classList.add('hidden');
     successScreen.classList.add('show');
-      
-    });
-    
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
-
-    const payload = new URLSearchParams();
-    payload.append('firstName', firstNameInput.value.trim());
-    payload.append('lastName', lastNameInput.value.trim());
-    payload.append('email', emailInput.value.trim());
-    payload.append('phone', digitsOnly(phoneInput.value.trim()));
-    payload.append('emergencyName', emergencyNameInput.value.trim());
-    payload.append('emergencyPhone', digitsOnly(emergencyPhoneInput.value.trim()));
-    payload.append('waiverAcceptance', waiver.waiverAccepted);
-    payload.append('signature', waiver.signature);
-    payload.append('waiverSignedAt', waiver.signedAt || '');
-
-    try {
-      if (APPS_SCRIPT_URL.includes('PASTE')) {
-        console.log('TEST MODE:', Object.fromEntries(payload.entries()));
-      } else {
-        const response = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          body: payload
-        });
-
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-          throw new Error(result.message || 'Submission failed.');
-        }
-      }
-
-      formContainer.classList.add('hidden');
-      successScreen.classList.add('show');
-    } catch (err) {
-      showMessage('Submission failed. Try again.', 'error');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Check In';
-    }
   });
 
   attachPhoneFormatter(phoneInput);
