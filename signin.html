@@ -264,20 +264,36 @@
     window.location.href = 'waiver.html';
   };
 
-  form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
     e.preventDefault();
     clearMessage();
-
+  
     const waiver = getWaiverData();
     if (!waiver) {
       showMessage('Waiver information is missing. Please complete the waiver again.', 'error');
       return;
     }
-
+  
     if (!validateForm()) {
       return;
     }
-
+  
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+  
+    document.getElementById('phone').value = digitsOnly(phoneInput.value.trim());
+    document.getElementById('emergencyPhone').value = digitsOnly(emergencyPhoneInput.value.trim());
+    document.getElementById('waiverAcceptance').value = waiver.waiverAccepted;
+    document.getElementById('signature').value = waiver.signature;
+    document.getElementById('waiverSignedAt').value = waiver.signedAt || '';
+  
+    form.submit();
+  
+    formContainer.classList.add('hidden');
+    successScreen.classList.add('show');
+      
+    });
+    
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
 
