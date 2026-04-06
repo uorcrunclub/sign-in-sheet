@@ -424,6 +424,96 @@ button:disabled,
 }
 
 /* =========================
+   SUCCESS SCREEN LAYOUT
+========================= */
+
+.success-screen {
+  text-align: left;
+  padding: 28px 20px 24px;
+}
+
+.success-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 100%;
+}
+
+.checkin-icon {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  display: block;
+  color: var(--text);
+}
+
+.success-text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.success-text h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.success-text p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.success-next-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* Optional: keep the success block visually tighter */
+.success-screen.show {
+  display: block;
+}
+
+/* =========================
+   MOBILE TUNING
+========================= */
+
+@media (max-width: 640px) {
+  .success-screen {
+    padding: 22px 16px 20px;
+  }
+
+  .success-content {
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .checkin-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    margin-top: 2px;
+  }
+
+  .success-text h2 {
+    font-size: 24px;
+    line-height: 1.15;
+  }
+
+  .success-text p {
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .success-next-btn {
+    margin-top: 18px;
+  }
+}
+
+/* =========================
    WAIVER PAGE
 ========================= */
 
