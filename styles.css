@@ -944,3 +944,7 @@ textarea.input-error {
    flex: 1 1 auto; 
    min-width: 0; 
 }
+
+[hidden] {
+  display: none !important;
+}
