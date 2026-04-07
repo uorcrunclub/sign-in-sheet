@@ -178,24 +178,31 @@
       updateSelectionButtons();
     }
 
-    window.addEventListener('message', (event) => {
-      const allowedOrigins = [
-        'https://script.google.com',
-        'https://script.googleusercontent.com'
-      ];
+window.addEventListener('message', (event) => {
+  console.log('postMessage received', {
+    origin: event.origin,
+    data: event.data
+  });
 
-      if (!allowedOrigins.includes(event.origin)) {
-        return;
-      }
+  if (!pendingRequest) {
+    return;
+  }
 
-      if (!pendingRequest) {
-        return;
-      }
+  const payload = event.data;
 
-      const { resolve } = pendingRequest;
-      pendingRequest = null;
-      resolve(event.data);
-    });
+  // Only accept object-like payloads that look like ours
+  if (!payload || typeof payload !== 'object') {
+    return;
+  }
+
+  if (!('ok' in payload) && !('success' in payload) && !('message' in payload)) {
+    return;
+  }
+
+  const { resolve } = pendingRequest;
+  pendingRequest = null;
+  resolve(payload);
+});
 
     function submitRaffleRequest(action, options = {}) {
       return new Promise((resolve, reject) => {
