@@ -506,18 +506,12 @@ button:disabled,
   line-height: 1.1;
 }
 
-.success-text p {
-  margin: 6px 0 0;
-  font-size: 17px;
-  line-height: 1.4;
-  color: var(--muted);
-}
-
 .success-next-btn {
   display: block;
   width: auto;
   margin-top: 14px;
   padding: 10px 18px;
+  flex: 0 0 auto;
 }
 
 /* Mobile */
@@ -645,7 +639,7 @@ button:disabled,
 .locked-screen p,
 .locked-overlay p,
 .success-screen p {
-  margin: 0 0 18px;
+  margin: 0 0 0px;
   color: var(--muted);
   font-size: 17px;
   line-height: 1.5;
