@@ -179,6 +179,16 @@
     }
 
 window.addEventListener('message', (event) => {
+  const origin = event.origin || '';
+
+  const allowed =
+    origin === 'https://script.google.com' ||
+    origin.endsWith('.googleusercontent.com');
+
+  if (!allowed) {
+    return;
+  }
+
   console.log('postMessage received', {
     origin: event.origin,
     data: event.data
@@ -190,12 +200,7 @@ window.addEventListener('message', (event) => {
 
   const payload = event.data;
 
-  // Only accept object-like payloads that look like ours
   if (!payload || typeof payload !== 'object') {
-    return;
-  }
-
-  if (!('ok' in payload) && !('success' in payload) && !('message' in payload)) {
     return;
   }
 
@@ -448,11 +453,16 @@ window.addEventListener('message', (event) => {
 
     drawAdditionalBtn.disabled = true;
 
-    if (getAdminKey()) {
-      authCard.hidden = true;
-      raffleApp.hidden = false;
-      loadState();
-    }
+window.addEventListener('DOMContentLoaded', async () => {
+  if (getAdminKey()) {
+    authCard.hidden = true;
+    raffleApp.hidden = false;
+    await loadState();
+  } else {
+    authCard.hidden = false;
+    raffleApp.hidden = true;
+  }
+});
   </script>
 </body>
 </html>
