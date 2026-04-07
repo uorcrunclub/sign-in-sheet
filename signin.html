@@ -58,12 +58,14 @@
         <div class="field-row">
           <div class="field-group">
             <label for="emergencyName">Emergency Contact Name</label>
-            <input type="text" id="emergencyName" name="emergencyName" required>
+            <input type="text" id="emergencyName" name="emergencyName">
+            <div class="helper">Optional.</div>
           </div>
 
           <div class="field-group">
             <label for="emergencyPhone">Emergency Contact Phone</label>
-            <input id="emergencyPhone" name="emergencyPhone" type="tel" required autocomplete="tel">
+            <input id="emergencyPhone" name="emergencyPhone" type="tel" autocomplete="tel">
+            <div class="helper">Optional.</div>
           </div>
         </div>
         
@@ -244,18 +246,14 @@
       }
       phoneInput.value = formatPhoneInput(phone);
     }
-
-    if (!emergencyName) {
-      showMessage('Please enter an emergency contact name.', 'error');
-      emergencyNameInput.focus();
-      return false;
-    }
-
+    
     const emergencyPhoneDigits = digitsOnly(emergencyPhone);
-    if (emergencyPhoneDigits.length !== 10) {
-      showMessage('Please enter a valid 10-digit emergency contact phone number.', 'error');
-      emergencyPhoneInput.focus();
-      return false;
+    // Only validate format IF user entered something
+    if (emergencyPhoneInput.value.trim()) {
+      if (!isValidPhone(emergencyPhoneInput.value)) {
+        showMessage('Enter a valid emergency phone number', 'error');
+        return false;
+      }
     }
 
     emergencyPhoneInput.value = formatPhoneInput(emergencyPhone);
