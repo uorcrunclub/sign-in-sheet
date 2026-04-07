@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>UORC Raffle</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="page-header">
+      <h1>UORC Raffle</h1>
+    </section>
+
+    <section class="card" id="authCard">
+      <h2>Admin Access</h2>
+      <p class="muted">Enter the raffle admin key to continue.</p>
+      <label for="adminKeyInput">Admin key</label>
+      <input id="adminKeyInput" type="password" autocomplete="current-password" inputmode="text">
+      <div class="button-row">
+        <button id="unlockBtn" class="primary-btn">Unlock Raffle</button>
+      </div>
+      <div id="authStatus" class="status-text"></div>
+    </section>
+
+    <section id="raffleApp" hidden>
+      <section class="card" id="drawCard">
+        <h2>Draw Winners</h2>
+        <label for="winnerCount">Number of winners to draw</label>
+        <input id="winnerCount" type="number" min="1" step="1" placeholder="Enter number of winners">
+        <div class="button-row">
+          <button id="drawBtn" class="primary-btn">Draw winner(s)</button>
+        </div>
+        <p class="meta-line">Last draw: <span id="lastDraw">Not yet run today</span></p>
+        <div id="globalStatus" class="status-text"></div>
+      </section>
+
+      <section class="card" id="winnersCard" hidden>
+        <h2>Current active winner(s)</h2>
+        <div id="winnerList" class="winner-list"></div>
+        <div class="button-row stacked">
+          <button id="redrawSelectedBtn" class="secondary-btn" disabled>Redraw selected</button>
+          <button id="markWinnerBtn" class="primary-btn" disabled>Mark selected as Winner</button>
+          <button id="markRemovedBtn" class="danger-btn" disabled>Mark selected as Removed</button>
+        </div>
+      </section>
+
+      <section class="card" id="redrawBlock" hidden>
+        <h2>Additional Winners</h2>
+        <p class="muted">Use this only when you intentionally want more active winners added.</p>
+        <label class="checkbox-row">
+          <input id="allowRedraw" type="checkbox">
+          <span>I understand this will append more active winners to the log.</span>
+        </label>
+        <div class="button-row">
+          <button id="drawAdditionalBtn" class="danger-btn" disabled>Draw Additional Participants</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="button-row">
+          <button id="forgetKeyBtn" class="secondary-btn">Forget Admin Key</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL?route=raffle';
+    const ADMIN_KEY_STORAGE = 'uorcRaffleAdminKey';
+
+    const authCard = document.getElementById('authCard');
+    const raffleApp = document.getElementById('raffleApp');
+    const adminKeyInput = document.getElementById('adminKeyInput');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const authStatus = document.getElementById('authStatus');
+
+    const winnerCountInput = document.getElementById('winnerCount');
+    const drawBtn = document.getElementById('drawBtn');
+    const drawAdditionalBtn = document.getElementById('drawAdditionalBtn');
+    const redrawSelectedBtn = document.getElementById('redrawSelectedBtn');
+    const markWinnerBtn = document.getElementById('markWinnerBtn');
+    const markRemovedBtn = document.getElementById('markRemovedBtn');
+    const allowRedraw = document.getElementById('allowRedraw');
+    const forgetKeyBtn = document.getElementById('forgetKeyBtn');
+
+    const winnersCard = document.getElementById('winnersCard');
+    const redrawBlock = document.getElementById('redrawBlock');
+    const winnerList = document.getElementById('winnerList');
+    const lastDraw = document.getElementById('lastDraw');
+    const globalStatus = document.getElementById('globalStatus');
+
+    function getAdminKey() {
+      return sessionStorage.getItem(ADMIN_KEY_STORAGE) || '';
+    }
+
+    function setAdminKey(value) {
+      sessionStorage.setItem(ADMIN_KEY_STORAGE, value);
+    }
+
+    function clearAdminKey() {
+      sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+    }
+
+    async function apiCall(action, extra = {}) {
+      const adminKey = getAdminKey();
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          action,
+          adminKey,
+          ...extra
+        })
+      });
+
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        throw new Error('Invalid server response: ' + text);
+      }
+    }
+
+    function setStatus(el, message, type = '') {
+      el.textContent = message || '';
+      el.className = 'status-text ' + type;
+    }
+
+    function getSelectedWinnerKeys() {
+      return Array.from(document.querySelectorAll('.winner-check:checked'))
+        .map(cb => cb.value)
+        .filter(Boolean);
+    }
+
+    function updateSelectionButtons() {
+      const hasSelection = getSelectedWinnerKeys().length > 0;
+      redrawSelectedBtn.disabled = !hasSelection;
+      markWinnerBtn.disabled = !hasSelection;
+      markRemovedBtn.disabled = !hasSelection;
+    }
+
+    function renderWinners(winners) {
+      winnerList.innerHTML = '';
+
+      if (!winners || !winners.length) {
+        winnersCard.hidden = true;
+        updateSelectionButtons();
+        return;
+      }
+
+      winners.forEach((winner, index) => {
+        const row = document.createElement('label');
+        row.className = 'winner-pill';
+
+        row.innerHTML = `
+          <input class="winner-check" type="checkbox" value="${winner.key}">
+          <span class="winner-pill-indicator"></span>
+          <span class="winner-pill-text"><strong>${index + 1}.</strong> ${escapeHtml(winner.displayName || '')}</span>
+        `;
+
+        row.querySelector('.winner-check').addEventListener('change', updateSelectionButtons);
+        winnerList.appendChild(row);
+      });
+
+      winnersCard.hidden = false;
+      updateSelectionButtons();
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    async function unlockRaffle() {
+      const inputValue = adminKeyInput.value.trim();
+      if (!inputValue) {
+        setStatus(authStatus, 'Enter the admin key.', 'error');
+        return;
+      }
+
+      unlockBtn.disabled = true;
+      setStatus(authStatus, 'Checking key...', '');
+
+      try {
+        setAdminKey(inputValue);
+        const res = await apiCall('authCheck');
+
+        if (!res.ok) {
+          clearAdminKey();
+          setStatus(authStatus, res.message || 'Invalid admin key.', 'error');
+          unlockBtn.disabled = false;
+          return;
+        }
+
+        authCard.hidden = true;
+        raffleApp.hidden = false;
+        adminKeyInput.value = '';
+        setStatus(authStatus, '');
+        await loadState();
+      } catch (err) {
+        clearAdminKey();
+        setStatus(authStatus, err.message, 'error');
+        unlockBtn.disabled = false;
+      }
+    }
+
+    async function loadState() {
+      setStatus(globalStatus, 'Loading raffle state...', '');
+
+      try {
+        const res = await apiCall('getState');
+
+        if (!res.ok) {
+          setStatus(globalStatus, res.message || 'Failed to load state.', 'error');
+          return;
+        }
+
+        lastDraw.textContent = res.lastDrawText || 'Not yet run today';
+        renderWinners(res.winners || []);
+        redrawBlock.hidden = !res.drawnToday;
+        drawBtn.hidden = !!res.drawnToday;
+
+        setStatus(globalStatus, '');
+      } catch (err) {
+        setStatus(globalStatus, err.message, 'error');
+      }
+    }
+
+    async function runDraw(isAdditional) {
+      const winnerCount = parseInt(winnerCountInput.value, 10);
+
+      if (!winnerCount || winnerCount < 1) {
+        setStatus(globalStatus, 'Enter a valid number of winners.', 'error');
+        return;
+      }
+
+      if (isAdditional && !allowRedraw.checked) {
+        setStatus(globalStatus, 'Check the confirmation box before running an additional draw.', 'error');
+        return;
+      }
+
+      const button = isAdditional ? drawAdditionalBtn : drawBtn;
+      button.disabled = true;
+      setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Running raffle draw...', '');
+
+      try {
+        const res = await apiCall(isAdditional ? 'drawAdditional' : 'drawWinners', { winnerCount });
+
+        if (!res.ok) {
+          setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'error');
+          button.disabled = false;
+          await loadState();
+          return;
+        }
+
+        setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'success');
+        button.disabled = false;
+        await loadState();
+      } catch (err) {
+        setStatus(globalStatus, err.message, 'error');
+        button.disabled = false;
+      }
+    }
+
+    async function redrawSelected() {
+      const selectedWinnerKeys = getSelectedWinnerKeys();
+      if (!selectedWinnerKeys.length) {
+        setStatus(globalStatus, 'Select at least one winner to redraw.', 'error');
+        return;
+      }
+
+      redrawSelectedBtn.disabled = true;
+      setStatus(globalStatus, 'Redrawing selected winner(s)...', '');
+
+      try {
+        const res = await apiCall('redrawSelected', { selectedWinnerKeys });
+
+        if (!res.ok) {
+          setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'error');
+          await loadState();
+          return;
+        }
+
+        setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'success');
+        await loadState();
+      } catch (err) {
+        setStatus(globalStatus, err.message, 'error');
+      }
+    }
+
+    async function updateSelectedStatus(actionName) {
+      const selectedWinnerKeys = getSelectedWinnerKeys();
+      if (!selectedWinnerKeys.length) {
+        setStatus(globalStatus, 'Select at least one winner.', 'error');
+        return;
+      }
+
+      const label = actionName === 'markSelectedWinner'
+        ? 'Marking selected as Winner...'
+        : 'Marking selected as Removed...';
+
+      setStatus(globalStatus, label, '');
+
+      try {
+        const res = await apiCall(actionName, { selectedWinnerKeys });
+
+        if (!res.ok) {
+          setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'error');
+          await loadState();
+          return;
+        }
+
+        setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'success');
+        await loadState();
+      } catch (err) {
+        setStatus(globalStatus, err.message, 'error');
+      }
+    }
+
+    function forgetKey() {
+      clearAdminKey();
+      raffleApp.hidden = true;
+      authCard.hidden = false;
+      adminKeyInput.value = '';
+      setStatus(globalStatus, '');
+      setStatus(authStatus, 'Admin key cleared.', '');
+      unlockBtn.disabled = false;
+    }
+
+    unlockBtn.addEventListener('click', unlockRaffle);
+    adminKeyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') unlockRaffle();
+    });
+
+    drawBtn.addEventListener('click', () => runDraw(false));
+    drawAdditionalBtn.addEventListener('click', () => runDraw(true));
+    redrawSelectedBtn.addEventListener('click', redrawSelected);
+    markWinnerBtn.addEventListener('click', () => updateSelectedStatus('markSelectedWinner'));
+    markRemovedBtn.addEventListener('click', () => updateSelectedStatus('markSelectedRemoved'));
+    allowRedraw.addEventListener('change', () => {
+      drawAdditionalBtn.disabled = !allowRedraw.checked;
+    });
+    forgetKeyBtn.addEventListener('click', forgetKey);
+
+    drawAdditionalBtn.disabled = true;
+
+    if (getAdminKey()) {
+      authCard.hidden = true;
+      raffleApp.hidden = false;
+      loadState();
+    }
+  </script>
+</body>
+</html>
