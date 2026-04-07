@@ -265,7 +265,34 @@
     }
     emergencyPhoneInput.value = formatPhoneInput(emergencyPhone);
   }
-
+    
+  // Emergency contact pairing rule
+  const emergencyName = emergencyNameInput.value.trim();
+  const emergencyPhone = emergencyPhoneInput.value.trim();
+  
+  if (emergencyName || emergencyPhone) {
+    if (!emergencyName) {
+      showMessage('Please enter an emergency contact name.', 'error');
+      emergencyNameInput.focus();
+      return false;
+    }
+  
+    if (!emergencyPhone) {
+      showMessage('Please enter an emergency contact phone number.', 'error');
+      emergencyPhoneInput.focus();
+      return false;
+    }
+  
+    const emergencyPhoneDigits = digitsOnly(emergencyPhone);
+    if (emergencyPhoneDigits.length !== 10) {
+      showMessage('Enter a valid 10-digit emergency phone number.', 'error');
+      emergencyPhoneInput.focus();
+      return false;
+    }
+  
+    emergencyPhoneInput.value = formatPhoneInput(emergencyPhone);
+  }
+    
   return true;
 }
   
