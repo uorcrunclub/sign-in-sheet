@@ -249,7 +249,7 @@
     if (emergencyPhone) {
       const emergencyPhoneDigits = digitsOnly(emergencyPhone);
       // Only validate format IF user entered something
-      if (emergencyPhoneInput.length !== 10) {
+      if (emergencyPhoneDigits.length !== 10) {
           showMessage('Enter a valid 10-digit emergency phone number', 'error');
           return false;
         }
