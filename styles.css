@@ -427,9 +427,43 @@ button:disabled,
    SUCCESS SCREEN LAYOUT
 ========================= */
 
+/* Initial hidden state */
 .success-screen {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 220ms ease, transform 220ms ease;
   text-align: left;
   padding: 28px 20px 24px;
+}
+
+/* When shown */
+.success-screen.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.success-screen.show .checkin-icon {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.success-text,
+.success-next-btn {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.success-screen.show .success-text {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 80ms;
+}
+
+.success-screen.show .success-next-btn {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 140ms;
 }
 
 .success-content {
@@ -442,6 +476,9 @@ button:disabled,
 }
 
 .checkin-icon {
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 220ms ease, opacity 220ms ease; 
   width: 110px;
   height: 110px;
   flex: 0 0 110px;
