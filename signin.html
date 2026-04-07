@@ -35,47 +35,54 @@
           <div class="field-group">
             <label for="firstName">First Name</label>
             <input type="text" id="firstName" name="firstName" required autocomplete="given-name">
+            <div id="firstNameError" class="field-error" aria-live="polite"></div>
           </div>
-
+        
           <div class="field-group">
             <label for="lastName">Last Name</label>
             <input type="text" id="lastName" name="lastName" required autocomplete="family-name">
+            <div id="lastNameError" class="field-error" aria-live="polite"></div>
           </div>
         </div>
 
         <div class="field-group">
           <label for="email">Email Address</label>
           <input id="email" name="email" type="email" autocomplete="email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" required>
+          <div id="emailError" class="field-error" aria-live="polite"></div>
         </div>
 
         <div class="field-group">
           <label for="phone">Phone Number</label>
           <input id="phone" name="phone" type="tel" autocomplete="tel">
           <div class="helper">Optional.</div>
+          <div id="phoneError" class="field-error" aria-live="polite"></div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
             <label for="emergencyName">Emergency Contact Name</label>
             <input type="text" id="emergencyName" name="emergencyName">
-            <div class="helper">Optional.</div>
+            <div class="helper">Optional unless phone is entered.</div>
+            <div id="emergencyNameError" class="field-error" aria-live="polite"></div>
           </div>
-
+        
           <div class="field-group">
             <label for="emergencyPhone">Emergency Contact Phone</label>
             <input id="emergencyPhone" name="emergencyPhone" type="tel" autocomplete="tel">
-            <div class="helper">Optional.</div>
+            <div class="helper">Optional unless name is entered.</div>
+            <div id="emergencyPhoneError" class="field-error" aria-live="polite"></div>
           </div>
         </div>
         
         <iframe name="submitFrame" id="submitFrame" style="display:none;"></iframe>
-
+        <div id="message" class="message"></div>
+        
         <div class="actions">
           <button type="submit" class="primary" id="submitBtn">Check In</button>
           <button type="button" class="secondary" id="backBtn">Back to Waiver</button>
         </div>
 
-        <div id="message" class="message"></div>
+
         
         <input type="hidden" id="waiverAcceptance" name="waiverAcceptance">
         <input type="hidden" id="signature" name="signature">
@@ -153,7 +160,67 @@
     message.textContent = '';
     message.className = 'message';
   }
-
+  
+  function clearFieldErrors() {
+    const fields = [
+      firstNameInput,
+      lastNameInput,
+      emailInput,
+      phoneInput,
+      emergencyNameInput,
+      emergencyPhoneInput
+    ];
+  
+    fields.forEach((field) => {
+      field.classList.remove('input-error');
+      field.removeAttribute('aria-invalid');
+  
+      const errorEl = document.getElementById(`${field.id}Error`);
+      if (errorEl) {
+        errorEl.textContent = '';
+        errorEl.classList.remove('show');
+      }
+    });
+  }
+  
+  function setFieldError(input, message) {
+    input.classList.add('input-error');
+    input.setAttribute('aria-invalid', 'true');
+  
+    const errorEl = document.getElementById(`${input.id}Error`);
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.classList.add('show');
+    }
+  
+    showMessage(message, 'error');
+    input.focus();
+  }
+  
+  function clearSingleFieldError(input) {
+    input.classList.remove('input-error');
+    input.removeAttribute('aria-invalid');
+  
+    const errorEl = document.getElementById(`${input.id}Error`);
+    if (errorEl) {
+      errorEl.textContent = '';
+      errorEl.classList.remove('show');
+    }
+  }
+  
+  function updateEmergencyPairHighlight() {
+    const emergencyNameGroup = emergencyNameInput.closest('.field-group');
+    const emergencyPhoneGroup = emergencyPhoneInput.closest('.field-group');
+  
+    const hasName = emergencyNameInput.value.trim().length > 0;
+    const hasPhone = emergencyPhoneInput.value.trim().length > 0;
+    const onlyOneFilled = (hasName || hasPhone) && !(hasName && hasPhone);
+  
+    [emergencyNameGroup, emergencyPhoneGroup].forEach((group) => {
+      if (!group) return;
+      group.classList.toggle('field-pair-pending', onlyOneFilled);
+    });
+  }
   function escapeHtml(value) {
     return String(value)
       .replaceAll('&', '&amp;')
@@ -211,88 +278,70 @@
   }
 
   function validateForm() {
+  clearMessage();
+  clearFieldErrors();
+  updateEmergencyPairHighlight();
+
   const firstName = firstNameInput.value.trim();
   const lastName = lastNameInput.value.trim();
   const email = emailInput.value.trim();
   const phone = phoneInput.value.trim();
+  const emergencyName = emergencyNameInput.value.trim();
   const emergencyPhone = emergencyPhoneInput.value.trim();
 
-  // First Name
   if (!firstName) {
-    showMessage('Please enter your first name.', 'error');
-    firstNameInput.focus();
+    setFieldError(firstNameInput, 'Please enter your first name.');
     return false;
   }
 
-  // Last Name
   if (!lastName) {
-    showMessage('Please enter your last name.', 'error');
-    lastNameInput.focus();
+    setFieldError(lastNameInput, 'Please enter your last name.');
     return false;
   }
 
-  // Email (REQUIRED)
   if (!email) {
-    showMessage('Please enter your email address.', 'error');
-    emailInput.focus();
+    setFieldError(emailInput, 'Please enter your email address.');
     return false;
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showMessage('Please enter a valid email address.', 'error');
-    emailInput.focus();
+    setFieldError(emailInput, 'Please enter a valid email address.');
     return false;
   }
 
-  // Phone (optional, but validate if entered)
   if (phone) {
     const phoneDigits = digitsOnly(phone);
     if (phoneDigits.length !== 10) {
-      showMessage('Please enter a valid 10-digit phone number.', 'error');
-      phoneInput.focus();
+      setFieldError(phoneInput, 'Please enter a valid 10-digit phone number.');
       return false;
     }
     phoneInput.value = formatPhoneInput(phone);
   }
 
-  // Emergency Phone (optional, validate if entered)
-  if (emergencyPhone) {
-    const emergencyPhoneDigits = digitsOnly(emergencyPhone);
-    if (emergencyPhoneDigits.length !== 10) {
-      showMessage('Enter a valid 10-digit emergency phone number.', 'error');
-      emergencyPhoneInput.focus();
-      return false;
-    }
-    emergencyPhoneInput.value = formatPhoneInput(emergencyPhone);
-  }
-    
-  // Emergency contact pairing rule
-  const emergencyName = emergencyNameInput.value.trim();
-  const emergencyPhone = emergencyPhoneInput.value.trim();
-  
   if (emergencyName || emergencyPhone) {
     if (!emergencyName) {
-      showMessage('Please enter an emergency contact name.', 'error');
-      emergencyNameInput.focus();
+      setFieldError(emergencyNameInput, 'Please enter an emergency contact name.');
+      updateEmergencyPairHighlight();
       return false;
     }
-  
+
     if (!emergencyPhone) {
-      showMessage('Please enter an emergency contact phone number.', 'error');
-      emergencyPhoneInput.focus();
+      setFieldError(emergencyPhoneInput, 'Please enter an emergency contact phone number.');
+      updateEmergencyPairHighlight();
       return false;
     }
-  
+
     const emergencyPhoneDigits = digitsOnly(emergencyPhone);
     if (emergencyPhoneDigits.length !== 10) {
-      showMessage('Enter a valid 10-digit emergency phone number.', 'error');
-      emergencyPhoneInput.focus();
+      setFieldError(emergencyPhoneInput, 'Enter a valid 10-digit emergency phone number.');
+      updateEmergencyPairHighlight();
       return false;
     }
-  
+
     emergencyPhoneInput.value = formatPhoneInput(emergencyPhone);
   }
-    
+
+  updateEmergencyPairHighlight();
   return true;
 }
   
@@ -418,7 +467,33 @@ if (data.success === true) {
 
   attachPhoneFormatter(phoneInput);
   attachPhoneFormatter(emergencyPhoneInput);
-
+  
+    [
+    firstNameInput,
+    lastNameInput,
+    emailInput,
+    phoneInput,
+    emergencyNameInput,
+    emergencyPhoneInput
+  ].forEach((input) => {
+    input.addEventListener('input', () => {
+      clearSingleFieldError(input);
+      clearMessage();
+  
+      if (input === emergencyNameInput || input === emergencyPhoneInput) {
+        updateEmergencyPairHighlight();
+      }
+    });
+  
+    input.addEventListener('blur', () => {
+      if (input === emergencyNameInput || input === emergencyPhoneInput) {
+        updateEmergencyPairHighlight();
+      }
+    });
+  });
+  
+  updateEmergencyPairHighlight();
+  
   validateAccess();
 </script>
   
