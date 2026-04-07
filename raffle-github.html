@@ -2,17 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover">
   <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
   <link rel="apple-touch-icon" sizes="167x167" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
   <link rel="apple-touch-icon" sizes="152x152" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
   <link rel="apple-touch-icon" sizes="120x120" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
-
-  <meta name="apple-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="UORC Sign-In">
-
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="UORC Raffle">
   <link rel="stylesheet" href="/sign-in-sheet/styles.css">
- 
   <title>UORC Raffle</title>
 </head>
 <body>
@@ -21,16 +19,16 @@
       <h1>UORC Raffle</h1>
     </section>
 
-    <section class="card" id="authCard">
+    <form class="card" id="authCard">
       <h2>Admin Access</h2>
       <p class="muted">Enter the raffle admin key to continue.</p>
       <label for="adminKeyInput">Admin key</label>
       <input id="adminKeyInput" type="password" autocomplete="current-password" inputmode="text">
       <div class="button-row">
-        <button id="unlockBtn" class="primary-btn">Unlock Raffle</button>
+        <button id="unlockBtn" class="primary-btn" type="submit">Unlock Raffle</button>
       </div>
       <div id="authStatus" class="status-text"></div>
-    </section>
+    </form>
 
     <section id="raffleApp" hidden>
       <section class="card" id="drawCard">
@@ -38,7 +36,7 @@
         <label for="winnerCount">Number of winners to draw</label>
         <input id="winnerCount" type="number" min="1" step="1" placeholder="Enter number of winners">
         <div class="button-row">
-          <button id="drawBtn" class="primary-btn">Draw winner(s)</button>
+          <button id="drawBtn" class="primary-btn" type="button">Draw winner(s)</button>
         </div>
         <p class="meta-line">Last draw: <span id="lastDraw">Not yet run today</span></p>
         <div id="globalStatus" class="status-text"></div>
@@ -48,9 +46,9 @@
         <h2>Current active winner(s)</h2>
         <div id="winnerList" class="winner-list"></div>
         <div class="button-row stacked">
-          <button id="redrawSelectedBtn" class="secondary-btn" disabled>Redraw selected</button>
-          <button id="markWinnerBtn" class="primary-btn" disabled>Mark selected as Winner</button>
-          <button id="markRemovedBtn" class="danger-btn" disabled>Mark selected as Removed</button>
+          <button id="redrawSelectedBtn" class="secondary-btn" type="button" disabled>Redraw selected</button>
+          <button id="markWinnerBtn" class="primary-btn" type="button" disabled>Mark selected as Winner</button>
+          <button id="markRemovedBtn" class="danger-btn" type="button" disabled>Mark selected as Removed</button>
         </div>
       </section>
 
@@ -62,20 +60,32 @@
           <span>I understand this will append more active winners to the log.</span>
         </label>
         <div class="button-row">
-          <button id="drawAdditionalBtn" class="danger-btn" disabled>Draw Additional Participants</button>
+          <button id="drawAdditionalBtn" class="danger-btn" type="button" disabled>Draw Additional Participants</button>
         </div>
       </section>
 
       <section class="card">
         <div class="button-row">
-          <button id="forgetKeyBtn" class="secondary-btn">Forget Admin Key</button>
+          <button id="forgetKeyBtn" class="secondary-btn" type="button">Forget Admin Key</button>
         </div>
       </section>
     </section>
   </main>
 
+  <iframe name="raffleTransportFrame" id="raffleTransportFrame" hidden></iframe>
+
+  <form id="raffleTransportForm"
+        action="https://script.google.com/macros/s/AKfycbzoSr6z6FLDflWNBxVFStb65qJzc2EspLHPYj0ZG8LmKxZBR1V7MEu96vgxtwdc2NOfzg/exec?route=raffle"
+        method="post"
+        target="raffleTransportFrame"
+        hidden>
+    <input type="hidden" name="action" id="transportAction">
+    <input type="hidden" name="adminKey" id="transportAdminKey">
+    <input type="hidden" name="winnerCount" id="transportWinnerCount">
+    <div id="selectedKeysContainer"></div>
+  </form>
+
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzoSr6z6FLDflWNBxVFStb65qJzc2EspLHPYj0ZG8LmKxZBR1V7MEu96vgxtwdc2NOfzg/exec?route=raffle';
     const ADMIN_KEY_STORAGE = 'uorcRaffleAdminKey';
 
     const authCard = document.getElementById('authCard');
@@ -99,6 +109,8 @@
     const lastDraw = document.getElementById('lastDraw');
     const globalStatus = document.getElementById('globalStatus');
 
+    let pendingRequest = null;
+
     function getAdminKey() {
       return sessionStorage.getItem(ADMIN_KEY_STORAGE) || '';
     }
@@ -111,32 +123,18 @@
       sessionStorage.removeItem(ADMIN_KEY_STORAGE);
     }
 
-    async function apiCall(action, extra = {}) {
-      const adminKey = getAdminKey();
-
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
-        },
-        body: JSON.stringify({
-          action,
-          adminKey,
-          ...extra
-        })
-      });
-
-      const text = await response.text();
-      try {
-        return JSON.parse(text);
-      } catch (err) {
-        throw new Error('Invalid server response: ' + text);
-      }
-    }
-
     function setStatus(el, message, type = '') {
       el.textContent = message || '';
       el.className = 'status-text ' + type;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
     }
 
     function getSelectedWinnerKeys() {
@@ -166,7 +164,7 @@
         row.className = 'winner-pill';
 
         row.innerHTML = `
-          <input class="winner-check" type="checkbox" value="${winner.key}">
+          <input class="winner-check" type="checkbox" value="${escapeHtml(winner.key)}">
           <span class="winner-pill-indicator"></span>
           <span class="winner-pill-text"><strong>${index + 1}.</strong> ${escapeHtml(winner.displayName || '')}</span>
         `;
@@ -179,13 +177,58 @@
       updateSelectionButtons();
     }
 
-    function escapeHtml(value) {
-      return String(value || '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
+    window.addEventListener('message', (event) => {
+      const allowedOrigins = [
+        'https://script.google.com',
+        'https://script.googleusercontent.com'
+      ];
+
+      if (!allowedOrigins.includes(event.origin)) {
+        return;
+      }
+
+      if (!pendingRequest) {
+        return;
+      }
+
+      const { resolve } = pendingRequest;
+      pendingRequest = null;
+      resolve(event.data);
+    });
+
+    function submitRaffleRequest(action, options = {}) {
+      return new Promise((resolve, reject) => {
+        if (pendingRequest) {
+          reject(new Error('Another raffle request is already in progress.'));
+          return;
+        }
+
+        pendingRequest = { resolve, reject };
+
+        document.getElementById('transportAction').value = action;
+        document.getElementById('transportAdminKey').value = getAdminKey();
+        document.getElementById('transportWinnerCount').value = options.winnerCount || '';
+
+        const selectedKeysContainer = document.getElementById('selectedKeysContainer');
+        selectedKeysContainer.innerHTML = '';
+
+        (options.selectedWinnerKeys || []).forEach((key) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'selectedWinnerKeys';
+          input.value = key;
+          selectedKeysContainer.appendChild(input);
+        });
+
+        document.getElementById('raffleTransportForm').submit();
+
+        window.setTimeout(() => {
+          if (pendingRequest) {
+            pendingRequest = null;
+            reject(new Error('The raffle request timed out.'));
+          }
+        }, 15000);
+      });
     }
 
     async function unlockRaffle() {
@@ -200,11 +243,11 @@
 
       try {
         setAdminKey(inputValue);
-        const res = await apiCall('authCheck');
+        const res = await submitRaffleRequest('authCheck');
 
-        if (!res.ok) {
+        if (!res || !res.ok) {
           clearAdminKey();
-          setStatus(authStatus, res.message || 'Invalid admin key.', 'error');
+          setStatus(authStatus, (res && res.message) || 'Invalid admin key.', 'error');
           unlockBtn.disabled = false;
           return;
         }
@@ -213,6 +256,7 @@
         raffleApp.hidden = false;
         adminKeyInput.value = '';
         setStatus(authStatus, '');
+        unlockBtn.disabled = false;
         await loadState();
       } catch (err) {
         clearAdminKey();
@@ -225,10 +269,14 @@
       setStatus(globalStatus, 'Loading raffle state...', '');
 
       try {
-        const res = await apiCall('getState');
+        const res = await submitRaffleRequest('getState');
 
-        if (!res.ok) {
-          setStatus(globalStatus, res.message || 'Failed to load state.', 'error');
+        if (!res || !res.ok) {
+          renderWinners([]);
+          redrawBlock.hidden = true;
+          drawBtn.hidden = false;
+          lastDraw.textContent = 'Not yet run today';
+          setStatus(globalStatus, (res && res.message) || 'Failed to load state.', 'error');
           return;
         }
 
@@ -236,7 +284,6 @@
         renderWinners(res.winners || []);
         redrawBlock.hidden = !res.drawnToday;
         drawBtn.hidden = !!res.drawnToday;
-
         setStatus(globalStatus, '');
       } catch (err) {
         setStatus(globalStatus, err.message, 'error');
@@ -261,16 +308,28 @@
       setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Running raffle draw...', '');
 
       try {
-        const res = await apiCall(isAdditional ? 'drawAdditional' : 'drawWinners', { winnerCount });
+        const res = await submitRaffleRequest(
+          isAdditional ? 'drawAdditional' : 'drawWinners',
+          { winnerCount }
+        );
 
-        if (!res.ok) {
-          setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'error');
+        if (!res || !res.ok) {
+          setStatus(
+            globalStatus,
+            ((res && res.message) || 'Request failed.') + ((res && res.details) ? '\n' + res.details : ''),
+            'error'
+          );
           button.disabled = false;
           await loadState();
           return;
         }
 
-        setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'success');
+        setStatus(
+          globalStatus,
+          (res.message || 'Success.') + (res.details ? '\n' + res.details : ''),
+          'success'
+        );
+
         button.disabled = false;
         await loadState();
       } catch (err) {
@@ -290,18 +349,28 @@
       setStatus(globalStatus, 'Redrawing selected winner(s)...', '');
 
       try {
-        const res = await apiCall('redrawSelected', { selectedWinnerKeys });
+        const res = await submitRaffleRequest('redrawSelected', { selectedWinnerKeys });
 
-        if (!res.ok) {
-          setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'error');
+        if (!res || !res.ok) {
+          setStatus(
+            globalStatus,
+            ((res && res.message) || 'Redraw failed.') + ((res && res.details) ? '\n' + res.details : ''),
+            'error'
+          );
           await loadState();
           return;
         }
 
-        setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'success');
+        setStatus(
+          globalStatus,
+          (res.message || 'Redraw complete.') + (res.details ? '\n' + res.details : ''),
+          'success'
+        );
         await loadState();
       } catch (err) {
         setStatus(globalStatus, err.message, 'error');
+      } finally {
+        redrawSelectedBtn.disabled = false;
       }
     }
 
@@ -319,15 +388,23 @@
       setStatus(globalStatus, label, '');
 
       try {
-        const res = await apiCall(actionName, { selectedWinnerKeys });
+        const res = await submitRaffleRequest(actionName, { selectedWinnerKeys });
 
-        if (!res.ok) {
-          setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'error');
+        if (!res || !res.ok) {
+          setStatus(
+            globalStatus,
+            ((res && res.message) || 'Status update failed.') + ((res && res.details) ? '\n' + res.details : ''),
+            'error'
+          );
           await loadState();
           return;
         }
 
-        setStatus(globalStatus, res.message + (res.details ? '\n' + res.details : ''), 'success');
+        setStatus(
+          globalStatus,
+          (res.message || 'Status updated.') + (res.details ? '\n' + res.details : ''),
+          'success'
+        );
         await loadState();
       } catch (err) {
         setStatus(globalStatus, err.message, 'error');
@@ -344,9 +421,9 @@
       unlockBtn.disabled = false;
     }
 
-    unlockBtn.addEventListener('click', unlockRaffle);
-    adminKeyInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') unlockRaffle();
+    authCard.addEventListener('submit', (e) => {
+      e.preventDefault();
+      unlockRaffle();
     });
 
     drawBtn.addEventListener('click', () => runDraw(false));
@@ -354,9 +431,11 @@
     redrawSelectedBtn.addEventListener('click', redrawSelected);
     markWinnerBtn.addEventListener('click', () => updateSelectedStatus('markSelectedWinner'));
     markRemovedBtn.addEventListener('click', () => updateSelectedStatus('markSelectedRemoved'));
+
     allowRedraw.addEventListener('change', () => {
       drawAdditionalBtn.disabled = !allowRedraw.checked;
     });
+
     forgetKeyBtn.addEventListener('click', forgetKey);
 
     drawAdditionalBtn.disabled = true;
