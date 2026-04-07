@@ -467,11 +467,11 @@ button:disabled,
 }
 
 .success-content {
-  display: flex;
+  display: inline-flex;
   align-items: center;   
   justify-content: flex-start;
   gap: 10px;
-  width: 100%;
+  width: auto;
   margin: 0;
 }
 
