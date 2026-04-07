@@ -460,6 +460,7 @@ button:disabled,
   min-width: 0;
   flex: 1 1 auto;
   padding-top: 2px;
+  gap: 2px;
 }
 
 .success-text h2 {
