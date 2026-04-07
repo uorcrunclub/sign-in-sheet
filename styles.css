@@ -351,7 +351,7 @@ button:disabled,
   background: var(--secondary-btn-bg);
   color: var(--text);
   border: 1px solid var(--secondary-btn-border);
-  flex: 1 1 180px;
+  flex: 1 1 auto;
 }
 
 .secondary:hover,
