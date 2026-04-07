@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UORC Sign-In</title>
+  <title id="pageTitle">UORC Sign-In</title>
 
   <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
   <link rel="apple-touch-icon" sizes="167x167" href="https://raw.githubusercontent.com/uorcrunclub/sign-in-sheet/main/uorc_app_icon_black.png">
@@ -114,12 +114,17 @@
   
   </div>
 
-  <div class="footer-note">UORC participant sign-in | v1.0</div>
+  <div class="footer-note" id="footerVersion"></div>
 </div>
 
 <script>
   console.log('UORC SIGNIN SCRIPT LOADED');
-
+  
+  const APP_CONFIG = {
+    name: 'UORC Sign-In',
+    version: 'v1.0.0'
+  };
+  
   const form = document.getElementById('form');
   const formContainer = document.getElementById('formContainer');
   const successScreen = document.getElementById('successScreen');
@@ -142,6 +147,15 @@
   let submissionInProgress = false;
   let submissionTimeout = null;
 
+  // Set page title
+  document.title = `${APP_CONFIG.name} | ${APP_CONFIG.version}`;
+  
+  // Set footer
+  const footerEl = document.getElementById('footerVersion');
+  if (footerEl) {
+    footerEl.textContent = `${APP_CONFIG.name} | ${APP_CONFIG.version}`;
+  }
+  
   function getWaiverData() {
     try {
       return JSON.parse(sessionStorage.getItem('uorcWaiverData'));
