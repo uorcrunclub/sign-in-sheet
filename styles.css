@@ -830,6 +830,11 @@ textarea.input-error {
   box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.12);
 }
 
+.field-group.field-pair-pending input:not(.input-error) {
+  border-color: #b8860b;
+  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.10);
+}
+
 @media (prefers-color-scheme: dark) {
   .field-error {
     color: #ff8a80;
@@ -841,4 +846,11 @@ textarea.input-error {
     border-color: #ff8a80 !important;
     box-shadow: 0 0 0 3px rgba(255, 138, 128, 0.16);
   }
+
+  .field-group.field-pair-pending input:not(.input-error) {
+    border-color: #f0c75e;
+    box-shadow: 0 0 0 3px rgba(240, 199, 94, 0.14);
+  }
 }
+
+
