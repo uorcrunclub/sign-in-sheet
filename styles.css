@@ -853,4 +853,94 @@ textarea.input-error {
   }
 }
 
+/* =========================
+   RAFFLE PAGE
+========================= */
+.page-shell { 
+   max-width: 680px; 
+   margin: 0 auto; 
+   padding: 12px; 
+}
 
+.page-header h1 { 
+   margin: 0 0 12px; 
+}
+
+.card { 
+   margin-top: 14px; 
+   padding: 16px; 
+   border-radius: 16px; 
+}
+
+.muted { 
+   opacity: .8; 
+}
+
+.meta-line { 
+   margin-top: 10px; 
+}
+
+.button-row { 
+   display: flex; 
+   flex-direction: column; 
+   gap: 12px; 
+   margin-top: 12px; 
+}
+
+.status-text { 
+   white-space: pre-wrap; 
+   margin-top: 12px; 
+}
+
+.status-text.success { 
+   color: #0a7a33; 
+}
+
+.status-text.error { 
+   color: #b00020; 
+}
+
+.checkbox-row { 
+   display: flex; 
+   gap: 10px; 
+   align-items: flex-start; 
+   margin-top: 12px; }
+
+.winner-list { 
+   display: flex; 
+   flex-direction: column; 
+   gap: 10px; 
+}
+
+.winner-pill { 
+   display: flex; 
+   align-items: center; 
+   gap: 12px; 
+   padding: 12px 14px; 
+   border-radius: 999px; 
+   border: 1px solid var(--border-color, #ddd); 
+   cursor: pointer; 
+}
+
+.winner-pill input { 
+   position: absolute; 
+   opacity: 0; 
+   pointer-events: none; 
+}
+
+.winner-pill-indicator { 
+   width: 22px; 
+   height: 22px; 
+   border-radius: 999px; 
+   border: 2px solid #9ca3af; 
+   flex: 0 0 auto; 
+}
+
+.winner-pill input:checked + .winner-pill-indicator { 
+   background: currentColor; 
+}
+
+.winner-pill-text { 
+   flex: 1 1 auto; 
+   min-width: 0; 
+}
