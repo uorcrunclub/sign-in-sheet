@@ -50,7 +50,7 @@
 
         <div class="field-group">
           <label for="phone">Phone Number</label>
-          <input id="phone" name="phone" type="tel" autocomplete="tel required">
+          <input id="phone" name="phone" type="tel" autocomplete="tel">
           <div class="helper">Optional.</div>
         </div>
 
@@ -211,52 +211,64 @@
   }
 
   function validateForm() {
-    const firstName = firstNameInput.value.trim();
-    const lastName = lastNameInput.value.trim();
-    const email = emailInput.value.trim();
-    const phone = phoneInput.value.trim();
-    const emergencyName = emergencyNameInput.value.trim();
-    const emergencyPhone = emergencyPhoneInput.value.trim();
+  const firstName = firstNameInput.value.trim();
+  const lastName = lastNameInput.value.trim();
+  const email = emailInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const emergencyPhone = emergencyPhoneInput.value.trim();
 
-    if (!firstName) {
-      showMessage('Please enter your first name.', 'error');
-      firstNameInput.focus();
-      return false;
-    }
-
-    if (!lastName) {
-      showMessage('Please enter your last name.', 'error');
-      lastNameInput.focus();
-      return false;
-    }
-
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showMessage('Please enter a valid email address.', 'error');
-      emailInput.focus();
-      return false;
-    }
-
-    if (phone) {
-      const phoneDigits = digitsOnly(phone);
-      if (phoneDigits.length !== 10) {
-        showMessage('Please enter a valid 10-digit phone number.', 'error');
-        phoneInput.focus();
-        return false;
-      }
-      phoneInput.value = formatPhoneInput(phone);
-    }
-
-    if (emergencyPhone) {
-      const emergencyPhoneDigits = digitsOnly(emergencyPhone);
-      // Only validate format IF user entered something
-      if (emergencyPhoneDigits.length !== 10) {
-          showMessage('Enter a valid 10-digit emergency phone number', 'error');
-          return false;
-        }
-    emergencyPhoneInput.value = formatPhoneInput(emergencyPhone);
-    return true;
-    }
+  // First Name
+  if (!firstName) {
+    showMessage('Please enter your first name.', 'error');
+    firstNameInput.focus();
+    return false;
   }
+
+  // Last Name
+  if (!lastName) {
+    showMessage('Please enter your last name.', 'error');
+    lastNameInput.focus();
+    return false;
+  }
+
+  // Email (REQUIRED)
+  if (!email) {
+    showMessage('Please enter your email address.', 'error');
+    emailInput.focus();
+    return false;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showMessage('Please enter a valid email address.', 'error');
+    emailInput.focus();
+    return false;
+  }
+
+  // Phone (optional, but validate if entered)
+  if (phone) {
+    const phoneDigits = digitsOnly(phone);
+    if (phoneDigits.length !== 10) {
+      showMessage('Please enter a valid 10-digit phone number.', 'error');
+      phoneInput.focus();
+      return false;
+    }
+    phoneInput.value = formatPhoneInput(phone);
+  }
+
+  // Emergency Phone (optional, validate if entered)
+  if (emergencyPhone) {
+    const emergencyPhoneDigits = digitsOnly(emergencyPhone);
+    if (emergencyPhoneDigits.length !== 10) {
+      showMessage('Enter a valid 10-digit emergency phone number.', 'error');
+      emergencyPhoneInput.focus();
+      return false;
+    }
+    emergencyPhoneInput.value = formatPhoneInput(emergencyPhone);
+  }
+
+  return true;
+}
+  
   function resetSubmitState() {
     submissionInProgress = false;
     submitBtn.disabled = false;
