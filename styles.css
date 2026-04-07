@@ -338,7 +338,7 @@ button:disabled,
 .primary-btn {
   background: var(--accent);
   color: #ffffff;
-  flex: 1 1 220px;
+  flex: 1 1 auto;
 }
 
 .primary:hover,
