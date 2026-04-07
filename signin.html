@@ -245,13 +245,14 @@
       }
       phoneInput.value = formatPhoneInput(phone);
     }
-    
-    const emergencyPhoneDigits = digitsOnly(emergencyPhone);
-    // Only validate format IF user entered something
-    if (emergencyPhoneInput.value.trim()) {
-      if (!isValidPhone(emergencyPhoneInput.value)) {
-        showMessage('Enter a valid emergency phone number', 'error');
-        return false;
+
+    if (emergencyPhone) {
+      const emergencyPhoneDigits = digitsOnly(emergencyPhone);
+      // Only validate format IF user entered something
+      if (emergencyPhoneInput.length !== 10) {
+          showMessage('Enter a valid 10-digit emergency phone number', 'error');
+          return false;
+        }
       }
     }
 
