@@ -309,13 +309,24 @@
       return;
     }
 
-    if (data.success === true) {
-      console.log('Submission success received from Apps Script.');
-      resetSubmitState();
-      formContainer.classList.add('hidden');
-      successScreen.classList.add('show');
-      return;
-    }
+if (data.success === true) {
+  console.log('Submission success received from Apps Script.');
+  resetSubmitState();
+
+  formContainer.classList.add('hidden');
+
+  // Ensure it's visible first (if you're using display somewhere)
+  successScreen.style.display = 'block';
+
+  // Reset animation so it always plays
+  successScreen.classList.remove('show');
+  void successScreen.offsetWidth;
+
+  // Trigger animation
+  successScreen.classList.add('show');
+
+  return;
+}
 
     if (data.success === false) {
       console.error('Submission failure received from Apps Script:', data.message);
