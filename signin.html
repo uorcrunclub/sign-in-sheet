@@ -253,13 +253,10 @@
           showMessage('Enter a valid 10-digit emergency phone number', 'error');
           return false;
         }
-      }
-    }
-
     emergencyPhoneInput.value = formatPhoneInput(emergencyPhone);
     return true;
+    }
   }
-
   function resetSubmitState() {
     submissionInProgress = false;
     submitBtn.disabled = false;
