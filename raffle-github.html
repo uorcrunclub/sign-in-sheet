@@ -152,8 +152,6 @@
   function updateSelectionButtons() {
     const hasSelection = getSelectedWinnerKeys().length > 0;
     redrawSelectedBtn.disabled = !hasSelection;
-    markWinnerBtn.disabled = !hasSelection;
-    markRemovedBtn.disabled = !hasSelection;
   }
 
   function renderWinners(winners) {
