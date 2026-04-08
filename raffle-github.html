@@ -480,8 +480,6 @@
   drawBtn.addEventListener('click', () => runDraw(false));
   drawAdditionalBtn.addEventListener('click', () => runDraw(true));
   redrawSelectedBtn.addEventListener('click', redrawSelected);
-  markWinnerBtn.addEventListener('click', () => markSelected('markSelectedWinner'));
-  markRemovedBtn.addEventListener('click', () => markSelected('markSelectedRemoved'));
 
   allowRedraw.addEventListener('change', () => {
     drawAdditionalBtn.disabled = !allowRedraw.checked;
