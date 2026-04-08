@@ -87,382 +87,426 @@
   </form>
 
   <script>
-    const ADMIN_KEY_STORAGE = 'uorcRaffleAdminKey';
+  const ADMIN_KEY_STORAGE = 'uorcRaffleAdminKey';
 
-    const authCard = document.getElementById('authCard');
-    const raffleApp = document.getElementById('raffleApp');
-    const adminKeyInput = document.getElementById('adminKeyInput');
-    const unlockBtn = document.getElementById('unlockBtn');
-    const authStatus = document.getElementById('authStatus');
+  const authCard = document.getElementById('authCard');
+  const raffleApp = document.getElementById('raffleApp');
+  const adminKeyInput = document.getElementById('adminKeyInput');
+  const unlockBtn = document.getElementById('unlockBtn');
+  const authStatus = document.getElementById('authStatus');
 
-    const winnerCountInput = document.getElementById('winnerCount');
-    const drawBtn = document.getElementById('drawBtn');
-    const drawAdditionalBtn = document.getElementById('drawAdditionalBtn');
-    const redrawSelectedBtn = document.getElementById('redrawSelectedBtn');
-    const markWinnerBtn = document.getElementById('markWinnerBtn');
-    const markRemovedBtn = document.getElementById('markRemovedBtn');
-    const allowRedraw = document.getElementById('allowRedraw');
-    const forgetKeyBtn = document.getElementById('forgetKeyBtn');
+  const winnerCountInput = document.getElementById('winnerCount');
+  const drawBtn = document.getElementById('drawBtn');
+  const drawAdditionalBtn = document.getElementById('drawAdditionalBtn');
+  const redrawSelectedBtn = document.getElementById('redrawSelectedBtn');
+  const markWinnerBtn = document.getElementById('markWinnerBtn');
+  const markRemovedBtn = document.getElementById('markRemovedBtn');
+  const allowRedraw = document.getElementById('allowRedraw');
+  const forgetKeyBtn = document.getElementById('forgetKeyBtn');
 
-    const winnersCard = document.getElementById('winnersCard');
-    const redrawBlock = document.getElementById('redrawBlock');
-    const winnerList = document.getElementById('winnerList');
-    const lastDraw = document.getElementById('lastDraw');
-    const globalStatus = document.getElementById('globalStatus');
+  const winnersCard = document.getElementById('winnersCard');
+  const redrawBlock = document.getElementById('redrawBlock');
+  const winnerList = document.getElementById('winnerList');
+  const lastDraw = document.getElementById('lastDraw');
+  const globalStatus = document.getElementById('globalStatus');
 
-    let pendingRequest = null;
+  const raffleTransportForm = document.getElementById('raffleTransportForm');
+  const transportAction = document.getElementById('transportAction');
+  const transportAdminKey = document.getElementById('transportAdminKey');
+  const transportWinnerCount = document.getElementById('transportWinnerCount');
+  const selectedKeysContainer = document.getElementById('selectedKeysContainer');
 
-    function getAdminKey() {
-      return sessionStorage.getItem(ADMIN_KEY_STORAGE) || '';
+  let pendingRequest = null;
+  let requestTimeout = null;
+
+  function getAdminKey() {
+    return sessionStorage.getItem(ADMIN_KEY_STORAGE) || '';
+  }
+
+  function setAdminKey(value) {
+    sessionStorage.setItem(ADMIN_KEY_STORAGE, value);
+  }
+
+  function clearAdminKey() {
+    sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+  }
+
+  function setStatus(el, message, type = '') {
+    el.textContent = message || '';
+    el.className = 'status-text' + (type ? ' ' + type : '');
+  }
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function getSelectedWinnerKeys() {
+    return Array.from(document.querySelectorAll('.winner-check:checked'))
+      .map(cb => cb.value)
+      .filter(Boolean);
+  }
+
+  function updateSelectionButtons() {
+    const hasSelection = getSelectedWinnerKeys().length > 0;
+    redrawSelectedBtn.disabled = !hasSelection;
+    markWinnerBtn.disabled = !hasSelection;
+    markRemovedBtn.disabled = !hasSelection;
+  }
+
+  function renderWinners(winners) {
+    winnerList.innerHTML = '';
+
+    if (!winners || !winners.length) {
+      winnersCard.hidden = true;
+      updateSelectionButtons();
+      return;
     }
 
-    function setAdminKey(value) {
-      sessionStorage.setItem(ADMIN_KEY_STORAGE, value);
+    winners.forEach((winner, index) => {
+      const row = document.createElement('label');
+      row.className = 'winner-pill';
+
+      row.innerHTML = `
+        <input class="winner-check" type="checkbox" value="${escapeHtml(winner.key || '')}">
+        <span class="winner-pill-indicator"></span>
+        <span class="winner-pill-text"><strong>${index + 1}.</strong> ${escapeHtml(winner.displayName || '')}</span>
+      `;
+
+      row.querySelector('.winner-check').addEventListener('change', updateSelectionButtons);
+      winnerList.appendChild(row);
+    });
+
+    winnersCard.hidden = false;
+    updateSelectionButtons();
+  }
+
+  function normalizeResponse(res) {
+    if (!res || typeof res !== 'object') {
+      return {
+        ok: false,
+        message: 'Invalid server response.'
+      };
     }
 
-    function clearAdminKey() {
-      sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+    if ('ok' in res) {
+      return res;
     }
 
-    function setStatus(el, message, type = '') {
-      el.textContent = message || '';
-      el.className = 'status-text ' + type;
+    if ('success' in res) {
+      return {
+        ok: !!res.success,
+        message: res.message || '',
+        details: res.details || '',
+        winners: res.winners || []
+      };
     }
 
-    function escapeHtml(value) {
-      return String(value || '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-    }
+    return {
+      ok: false,
+      message: 'Unexpected response format.'
+    };
+  }
 
-    function getSelectedWinnerKeys() {
-      return Array.from(document.querySelectorAll('.winner-check:checked'))
-        .map(cb => cb.value)
-        .filter(Boolean);
-    }
-
-    function updateSelectionButtons() {
-      const hasSelection = getSelectedWinnerKeys().length > 0;
-      redrawSelectedBtn.disabled = !hasSelection;
-      markWinnerBtn.disabled = !hasSelection;
-      markRemovedBtn.disabled = !hasSelection;
-    }
-
-    function renderWinners(winners) {
-      winnerList.innerHTML = '';
-
-      if (!winners || !winners.length) {
-        winnersCard.hidden = true;
-        updateSelectionButtons();
+  function submitRaffleRequest(action, options = {}) {
+    return new Promise((resolve, reject) => {
+      if (pendingRequest) {
+        reject(new Error('Another raffle request is already in progress.'));
         return;
       }
 
-      winners.forEach((winner, index) => {
-        const row = document.createElement('label');
-        row.className = 'winner-pill';
+      pendingRequest = { resolve, reject };
 
-        row.innerHTML = `
-          <input class="winner-check" type="checkbox" value="${escapeHtml(winner.key)}">
-          <span class="winner-pill-indicator"></span>
-          <span class="winner-pill-text"><strong>${index + 1}.</strong> ${escapeHtml(winner.displayName || '')}</span>
-        `;
+      transportAction.value = action;
+      transportAdminKey.value = getAdminKey();
+      transportWinnerCount.value = options.winnerCount || '';
 
-        row.querySelector('.winner-check').addEventListener('change', updateSelectionButtons);
-        winnerList.appendChild(row);
+      selectedKeysContainer.innerHTML = '';
+      (options.selectedWinnerKeys || []).forEach((key) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'selectedWinnerKeys';
+        input.value = key;
+        selectedKeysContainer.appendChild(input);
       });
 
-      winnersCard.hidden = false;
-      updateSelectionButtons();
-    }
+      raffleTransportForm.submit();
 
-window.addEventListener('message', (event) => {
-  const origin = event.origin || '';
-
-  const allowed =
-    origin === 'https://script.google.com' ||
-    origin.endsWith('.googleusercontent.com');
-
-  if (!allowed) {
-    return;
+      requestTimeout = window.setTimeout(() => {
+        if (pendingRequest) {
+          pendingRequest = null;
+          reject(new Error('The raffle request timed out.'));
+        }
+      }, 15000);
+    });
   }
 
-  console.log('postMessage received', {
-    origin: event.origin,
-    data: event.data
+  window.addEventListener('message', (event) => {
+    const origin = event.origin || '';
+
+    const allowed =
+      origin === 'https://script.google.com' ||
+      origin.endsWith('.googleusercontent.com');
+
+    if (!allowed) {
+      return;
+    }
+
+    console.log('postMessage received', {
+      origin: event.origin,
+      data: event.data
+    });
+
+    if (!pendingRequest) {
+      return;
+    }
+
+    if (requestTimeout) {
+      clearTimeout(requestTimeout);
+      requestTimeout = null;
+    }
+
+    const payload = normalizeResponse(event.data);
+    const { resolve } = pendingRequest;
+    pendingRequest = null;
+    resolve(payload);
   });
 
-  if (!pendingRequest) {
-    return;
-  }
+  async function unlockRaffle() {
+    const inputValue = adminKeyInput.value.trim();
 
-  const payload = event.data;
-
-  if (!payload || typeof payload !== 'object') {
-    return;
-  }
-
-  const { resolve } = pendingRequest;
-  pendingRequest = null;
-  resolve(payload);
-});
-
-    function submitRaffleRequest(action, options = {}) {
-      return new Promise((resolve, reject) => {
-        if (pendingRequest) {
-          reject(new Error('Another raffle request is already in progress.'));
-          return;
-        }
-
-        pendingRequest = { resolve, reject };
-
-        document.getElementById('transportAction').value = action;
-        document.getElementById('transportAdminKey').value = getAdminKey();
-        document.getElementById('transportWinnerCount').value = options.winnerCount || '';
-
-        const selectedKeysContainer = document.getElementById('selectedKeysContainer');
-        selectedKeysContainer.innerHTML = '';
-
-        (options.selectedWinnerKeys || []).forEach((key) => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'selectedWinnerKeys';
-          input.value = key;
-          selectedKeysContainer.appendChild(input);
-        });
-
-        document.getElementById('raffleTransportForm').submit();
-
-        window.setTimeout(() => {
-          if (pendingRequest) {
-            pendingRequest = null;
-            reject(new Error('The raffle request timed out.'));
-          }
-        }, 15000);
-      });
+    if (!inputValue) {
+      setStatus(authStatus, 'Enter the admin key.', 'error');
+      return;
     }
 
-    async function unlockRaffle() {
-      const inputValue = adminKeyInput.value.trim();
-      if (!inputValue) {
-        setStatus(authStatus, 'Enter the admin key.', 'error');
-        return;
-      }
+    unlockBtn.disabled = true;
+    setStatus(authStatus, 'Checking key...', '');
 
-      unlockBtn.disabled = true;
-      setStatus(authStatus, 'Checking key...', '');
+    try {
+      setAdminKey(inputValue);
+      const res = await submitRaffleRequest('authCheck');
 
-      try {
-        setAdminKey(inputValue);
-        const res = await submitRaffleRequest('authCheck');
-
-        if (!res || !res.ok) {
-          clearAdminKey();
-          setStatus(authStatus, (res && res.message) || 'Invalid admin key.', 'error');
-          unlockBtn.disabled = false;
-          return;
-        }
-
-        authCard.hidden = true;
-        raffleApp.hidden = false;
-        adminKeyInput.value = '';
-        setStatus(authStatus, '');
-        unlockBtn.disabled = false;
-        await loadState();
-      } catch (err) {
+      if (!res.ok) {
         clearAdminKey();
-        setStatus(authStatus, err.message, 'error');
+        setStatus(authStatus, res.message || 'Invalid admin key.', 'error');
         unlockBtn.disabled = false;
-      }
-    }
-
-    async function loadState() {
-      setStatus(globalStatus, 'Loading raffle state...', '');
-
-      try {
-        const res = await submitRaffleRequest('getState');
-
-        if (!res || !res.ok) {
-          renderWinners([]);
-          redrawBlock.hidden = true;
-          drawBtn.hidden = false;
-          lastDraw.textContent = 'Not yet run today';
-          setStatus(globalStatus, (res && res.message) || 'Failed to load state.', 'error');
-          return;
-        }
-
-        lastDraw.textContent = res.lastDrawText || 'Not yet run today';
-        renderWinners(res.winners || []);
-        redrawBlock.hidden = !res.drawnToday;
-        drawBtn.hidden = !!res.drawnToday;
-        setStatus(globalStatus, '');
-      } catch (err) {
-        setStatus(globalStatus, err.message, 'error');
-      }
-    }
-
-    async function runDraw(isAdditional) {
-      const winnerCount = parseInt(winnerCountInput.value, 10);
-
-      if (!winnerCount || winnerCount < 1) {
-        setStatus(globalStatus, 'Enter a valid number of winners.', 'error');
         return;
       }
 
-      if (isAdditional && !allowRedraw.checked) {
-        setStatus(globalStatus, 'Check the confirmation box before running an additional draw.', 'error');
+      authCard.hidden = true;
+      raffleApp.hidden = false;
+      adminKeyInput.value = '';
+      setStatus(authStatus, '');
+      unlockBtn.disabled = false;
+
+      await loadState();
+    } catch (err) {
+      clearAdminKey();
+      setStatus(authStatus, err.message || 'Unlock failed.', 'error');
+      unlockBtn.disabled = false;
+    }
+  }
+
+  async function loadState() {
+    setStatus(globalStatus, 'Loading raffle state...', '');
+
+    try {
+      const res = await submitRaffleRequest('getState');
+
+      if (!res.ok) {
+        renderWinners([]);
+        redrawBlock.hidden = true;
+        drawBtn.hidden = false;
+        lastDraw.textContent = 'Not yet run today';
+        setStatus(globalStatus, res.message || 'Failed to load state.', 'error');
         return;
       }
 
-      const button = isAdditional ? drawAdditionalBtn : drawBtn;
-      button.disabled = true;
-      setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Running raffle draw...', '');
+      renderWinners(res.winners || []);
+      redrawBlock.hidden = !res.drawnToday;
+      drawBtn.hidden = !!res.drawnToday;
+      lastDraw.textContent = res.lastDrawText || 'Not yet run today';
+      setStatus(globalStatus, '');
+    } catch (err) {
+      setStatus(globalStatus, err.message || 'Failed to load state.', 'error');
+    }
+  }
 
-      try {
-        const res = await submitRaffleRequest(
-          isAdditional ? 'drawAdditional' : 'drawWinners',
-          { winnerCount }
-        );
+  async function runDraw(isAdditional) {
+    const winnerCount = parseInt(winnerCountInput.value, 10);
 
-        if (!res || !res.ok) {
-          setStatus(
-            globalStatus,
-            ((res && res.message) || 'Request failed.') + ((res && res.details) ? '\n' + res.details : ''),
-            'error'
-          );
-          button.disabled = false;
-          await loadState();
-          return;
-        }
+    if (!winnerCount || winnerCount < 1) {
+      setStatus(globalStatus, 'Enter a valid number of winners.', 'error');
+      return;
+    }
 
+    if (isAdditional && !allowRedraw.checked) {
+      setStatus(globalStatus, 'Check the confirmation box before running an additional draw.', 'error');
+      return;
+    }
+
+    const action = isAdditional ? 'drawAdditional' : 'drawWinners';
+    const button = isAdditional ? drawAdditionalBtn : drawBtn;
+
+    button.disabled = true;
+    setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Running raffle draw...', '');
+
+    try {
+      const res = await submitRaffleRequest(action, { winnerCount });
+
+      if (!res.ok) {
         setStatus(
           globalStatus,
-          (res.message || 'Success.') + (res.details ? '\n' + res.details : ''),
-          'success'
+          (res.message || 'Request failed.') + (res.details ? '\n' + res.details : ''),
+          'error'
         );
-
         button.disabled = false;
         await loadState();
-      } catch (err) {
-        setStatus(globalStatus, err.message, 'error');
-        button.disabled = false;
-      }
-    }
-
-    async function redrawSelected() {
-      const selectedWinnerKeys = getSelectedWinnerKeys();
-      if (!selectedWinnerKeys.length) {
-        setStatus(globalStatus, 'Select at least one winner to redraw.', 'error');
         return;
       }
 
-      redrawSelectedBtn.disabled = true;
-      setStatus(globalStatus, 'Redrawing selected winner(s)...', '');
+      setStatus(
+        globalStatus,
+        (res.message || 'Success.') + (res.details ? '\n' + res.details : ''),
+        'success'
+      );
 
-      try {
-        const res = await submitRaffleRequest('redrawSelected', { selectedWinnerKeys });
+      button.disabled = false;
+      await loadState();
+    } catch (err) {
+      setStatus(globalStatus, err.message || 'Draw failed.', 'error');
+      button.disabled = false;
+    }
+  }
 
-        if (!res || !res.ok) {
-          setStatus(
-            globalStatus,
-            ((res && res.message) || 'Redraw failed.') + ((res && res.details) ? '\n' + res.details : ''),
-            'error'
-          );
-          await loadState();
-          return;
-        }
+  async function redrawSelected() {
+    const selectedWinnerKeys = getSelectedWinnerKeys();
 
+    if (!selectedWinnerKeys.length) {
+      setStatus(globalStatus, 'Select at least one winner to redraw.', 'error');
+      return;
+    }
+
+    redrawSelectedBtn.disabled = true;
+    setStatus(globalStatus, 'Redrawing selected winner(s)...', '');
+
+    try {
+      const res = await submitRaffleRequest('redrawSelected', { selectedWinnerKeys });
+
+      if (!res.ok) {
         setStatus(
           globalStatus,
-          (res.message || 'Redraw complete.') + (res.details ? '\n' + res.details : ''),
-          'success'
+          (res.message || 'Redraw failed.') + (res.details ? '\n' + res.details : ''),
+          'error'
         );
         await loadState();
-      } catch (err) {
-        setStatus(globalStatus, err.message, 'error');
-      } finally {
-        redrawSelectedBtn.disabled = false;
-      }
-    }
-
-    async function updateSelectedStatus(actionName) {
-      const selectedWinnerKeys = getSelectedWinnerKeys();
-      if (!selectedWinnerKeys.length) {
-        setStatus(globalStatus, 'Select at least one winner.', 'error');
         return;
       }
 
-      const label = actionName === 'markSelectedWinner'
+      setStatus(
+        globalStatus,
+        (res.message || 'Selective redraw complete.') + (res.details ? '\n' + res.details : ''),
+        'success'
+      );
+
+      await loadState();
+    } catch (err) {
+      setStatus(globalStatus, err.message || 'Redraw failed.', 'error');
+    } finally {
+      redrawSelectedBtn.disabled = false;
+    }
+  }
+
+  async function markSelected(statusAction) {
+    const selectedWinnerKeys = getSelectedWinnerKeys();
+
+    if (!selectedWinnerKeys.length) {
+      setStatus(globalStatus, 'Select at least one winner.', 'error');
+      return;
+    }
+
+    const statusText =
+      statusAction === 'markSelectedWinner'
         ? 'Marking selected as Winner...'
         : 'Marking selected as Removed...';
 
-      setStatus(globalStatus, label, '');
+    setStatus(globalStatus, statusText, '');
 
-      try {
-        const res = await submitRaffleRequest(actionName, { selectedWinnerKeys });
+    try {
+      const res = await submitRaffleRequest(statusAction, { selectedWinnerKeys });
 
-        if (!res || !res.ok) {
-          setStatus(
-            globalStatus,
-            ((res && res.message) || 'Status update failed.') + ((res && res.details) ? '\n' + res.details : ''),
-            'error'
-          );
-          await loadState();
-          return;
-        }
-
+      if (!res.ok) {
         setStatus(
           globalStatus,
-          (res.message || 'Status updated.') + (res.details ? '\n' + res.details : ''),
-          'success'
+          (res.message || 'Status update failed.') + (res.details ? '\n' + res.details : ''),
+          'error'
         );
         await loadState();
-      } catch (err) {
-        setStatus(globalStatus, err.message, 'error');
+        return;
       }
+
+      setStatus(
+        globalStatus,
+        (res.message || 'Status updated.') + (res.details ? '\n' + res.details : ''),
+        'success'
+      );
+
+      await loadState();
+    } catch (err) {
+      setStatus(globalStatus, err.message || 'Status update failed.', 'error');
     }
+  }
 
-    function forgetKey() {
-      clearAdminKey();
-      raffleApp.hidden = true;
-      authCard.hidden = false;
-      adminKeyInput.value = '';
-      setStatus(globalStatus, '');
-      setStatus(authStatus, 'Admin key cleared.', '');
-      unlockBtn.disabled = false;
-    }
-
-    authCard.addEventListener('submit', (e) => {
-      e.preventDefault();
-      unlockRaffle();
-    });
-
-    drawBtn.addEventListener('click', () => runDraw(false));
-    drawAdditionalBtn.addEventListener('click', () => runDraw(true));
-    redrawSelectedBtn.addEventListener('click', redrawSelected);
-    markWinnerBtn.addEventListener('click', () => updateSelectedStatus('markSelectedWinner'));
-    markRemovedBtn.addEventListener('click', () => updateSelectedStatus('markSelectedRemoved'));
-
-    allowRedraw.addEventListener('change', () => {
-      drawAdditionalBtn.disabled = !allowRedraw.checked;
-    });
-
-    forgetKeyBtn.addEventListener('click', forgetKey);
-
-    drawAdditionalBtn.disabled = true;
-
-window.addEventListener('DOMContentLoaded', async () => {
-  if (getAdminKey()) {
-    authCard.hidden = true;
-    raffleApp.hidden = false;
-    await loadState();
-  } else {
+  function forgetKey() {
+    clearAdminKey();
     authCard.hidden = false;
     raffleApp.hidden = true;
+    adminKeyInput.value = '';
+    setStatus(authStatus, 'Admin key cleared.', '');
+    setStatus(globalStatus, '');
+    winnerList.innerHTML = '';
+    winnersCard.hidden = true;
+    redrawBlock.hidden = true;
+    drawBtn.hidden = false;
+    unlockBtn.disabled = false;
   }
-});
-  </script>
+
+  // Button wiring
+  authCard.addEventListener('submit', (e) => {
+    e.preventDefault();
+    unlockRaffle();
+  });
+
+  drawBtn.addEventListener('click', () => runDraw(false));
+  drawAdditionalBtn.addEventListener('click', () => runDraw(true));
+  redrawSelectedBtn.addEventListener('click', redrawSelected);
+  markWinnerBtn.addEventListener('click', () => markSelected('markSelectedWinner'));
+  markRemovedBtn.addEventListener('click', () => markSelected('markSelectedRemoved'));
+
+  allowRedraw.addEventListener('change', () => {
+    drawAdditionalBtn.disabled = !allowRedraw.checked;
+  });
+
+  forgetKeyBtn.addEventListener('click', forgetKey);
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    drawAdditionalBtn.disabled = !allowRedraw.checked;
+
+    if (getAdminKey()) {
+      authCard.hidden = true;
+      raffleApp.hidden = false;
+      await loadState();
+    } else {
+      authCard.hidden = false;
+      raffleApp.hidden = true;
+    }
+  });
+</script>
+  
 </body>
 </html>
