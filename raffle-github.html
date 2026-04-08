@@ -246,36 +246,35 @@
   }
 
   window.addEventListener('message', (event) => {
-    const origin = event.origin || '';
+  const origin = event.origin || '';
 
-    const allowed =
-      origin === 'https://script.google.com' ||
-      origin.endsWith('.googleusercontent.com');
+  const allowed =
+    origin === 'https://script.google.com' ||
+    origin.endsWith('.googleusercontent.com');
 
-    if (!allowed) {
-      return;
-    }
+  if (!allowed) {
+    return;
+  }
 
-    console.log('postMessage received', {
-      origin: event.origin,
-      data: event.data
-    });
+  console.log('postMessage received origin:', event.origin);
+  console.log('postMessage payload:', event.data);
+  console.log('postMessage payload JSON:', JSON.stringify(event.data, null, 2));
 
-    if (!pendingRequest) {
-      return;
-    }
+  if (!pendingRequest) {
+    return;
+  }
 
-    if (requestTimeout) {
-      clearTimeout(requestTimeout);
-      requestTimeout = null;
-    }
+  if (requestTimeout) {
+    clearTimeout(requestTimeout);
+    requestTimeout = null;
+  }
 
-    const payload = normalizeResponse(event.data);
-    const { resolve } = pendingRequest;
-    pendingRequest = null;
-    resolve(payload);
-  });
-
+  const payload = normalizeResponse(event.data);
+  const { resolve } = pendingRequest;
+  pendingRequest = null;
+  resolve(payload);
+});
+    
   async function unlockRaffle() {
     const inputValue = adminKeyInput.value.trim();
 
