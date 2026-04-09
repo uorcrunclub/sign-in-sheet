@@ -338,32 +338,47 @@
     redrawSelectedBtn.disabled = !hasSelection;
   }
 
-  function renderWinners(winners) {
-    winnerList.innerHTML = '';
+function renderWinners(winners) {
+  winnerList.innerHTML = '';
 
-    if (!winners || !winners.length) {
-      winnersCard.hidden = true;
+  if (!winners || !winners.length) {
+    winnersCard.hidden = true;
+    updateSelectionButtons();
+    return;
+  }
+
+  winners.forEach((winner, index) => {
+    const row = document.createElement('label');
+    row.className = 'winner-pill';
+
+    row.innerHTML = `
+      <input class="winner-check" type="checkbox" value="${escapeHtml(winner.key || '')}">
+      <span class="winner-pill-text">
+        <strong>${index + 1}.</strong> ${escapeHtml(winner.displayName || '')}
+      </span>
+      <span class="pill-check" aria-hidden="true">✓</span>
+    `;
+
+    const checkbox = row.querySelector('.winner-check');
+
+    const syncSelectedState = () => {
+      row.classList.toggle('selected', checkbox.checked);
       updateSelectionButtons();
-      return;
-    }
+    };
 
-    winners.forEach((winner, index) => {
-      const row = document.createElement('label');
-      row.className = 'winner-pill';
+    checkbox.addEventListener('change', syncSelectedState);
 
-      row.innerHTML = `
-        <input class="winner-check" type="checkbox" value="${escapeHtml(winner.key || '')}">
-        <span class="winner-pill-indicator"></span>
-        <span class="winner-pill-text"><strong>${index + 1}.</strong> ${escapeHtml(winner.displayName || '')}</span>
-      `;
-
-      row.querySelector('.winner-check').addEventListener('change', updateSelectionButtons);
-      winnerList.appendChild(row);
+    row.addEventListener('click', () => {
+      requestAnimationFrame(syncSelectedState);
     });
 
-    winnersCard.hidden = false;
-    updateSelectionButtons();
-  }
+    syncSelectedState();
+    winnerList.appendChild(row);
+  });
+
+  winnersCard.hidden = false;
+  updateSelectionButtons();
+}
 
   function normalizeResponse(res) {
     if (!res || typeof res !== 'object') {
