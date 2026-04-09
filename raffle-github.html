@@ -97,8 +97,6 @@
   const drawBtn = document.getElementById('drawBtn');
   const drawAdditionalBtn = document.getElementById('drawAdditionalBtn');
   const redrawSelectedBtn = document.getElementById('redrawSelectedBtn');
-  const markWinnerBtn = document.getElementById('markWinnerBtn');
-  const markRemovedBtn = document.getElementById('markRemovedBtn');
   const allowRedraw = document.getElementById('allowRedraw');
   const forgetKeyBtn = document.getElementById('forgetKeyBtn');
 
@@ -129,6 +127,9 @@
     sessionStorage.removeItem(ADMIN_KEY_STORAGE);
   }
 
+  function applyLastDrawText(value) {
+    lastDraw.textContent = value || 'Not yet run today';
+  }
   function setStatus(el, message, type = '') {
     el.textContent = message || '';
     el.className = 'status-text' + (type ? ' ' + type : '');
@@ -307,77 +308,86 @@
     }
   }
 
-  async function loadState() {
-    setStatus(globalStatus, 'Loading raffle state...', '');
+async function loadState() {
+  setStatus(globalStatus, 'Loading raffle state...', '');
 
-    try {
-      const res = await submitRaffleRequest('getState');
+  try {
+    const res = await submitRaffleRequest('getState');
 
-      if (!res.ok) {
-        renderWinners([]);
-        redrawBlock.hidden = true;
-        drawBtn.hidden = false;
-        lastDraw.textContent = 'Not yet run today';
-        setStatus(globalStatus, res.message || 'Failed to load state.', 'error');
-        return;
-      }
-
-      renderWinners(res.winners || []);
-      redrawBlock.hidden = !res.drawnToday;
-      drawBtn.hidden = !!res.drawnToday;
-      lastDraw.textContent = res.lastDrawText || 'Not yet run today';
-      setStatus(globalStatus, '');
-    } catch (err) {
-      setStatus(globalStatus, err.message || 'Failed to load state.', 'error');
+    if (!res.ok) {
+      renderWinners([]);
+      redrawBlock.hidden = true;
+      drawBtn.hidden = false;
+      applyLastDrawText('');
+      setStatus(globalStatus, res.message || 'Failed to load state.', 'error');
+      return;
     }
+
+    renderWinners(res.winners || []);
+    redrawBlock.hidden = !res.drawnToday;
+    drawBtn.hidden = !!res.drawnToday;
+    applyLastDrawText(res.lastDrawText);
+    setStatus(globalStatus, '');
+  } catch (err) {
+    setStatus(globalStatus, err.message || 'Failed to load state.', 'error');
+  }
+}
+
+ async function runDraw(isAdditional) {
+  const winnerCount = parseInt(winnerCountInput.value, 10);
+
+  if (!winnerCount || winnerCount < 1) {
+    setStatus(globalStatus, 'Enter a valid number of winners.', 'error');
+    return;
   }
 
-  async function runDraw(isAdditional) {
-    const winnerCount = parseInt(winnerCountInput.value, 10);
+  if (isAdditional && !allowRedraw.checked) {
+    setStatus(globalStatus, 'Check the confirmation box before running an additional draw.', 'error');
+    return;
+  }
 
-    if (!winnerCount || winnerCount < 1) {
-      setStatus(globalStatus, 'Enter a valid number of winners.', 'error');
-      return;
-    }
+  const action = isAdditional ? 'drawAdditional' : 'drawWinners';
+  const button = isAdditional ? drawAdditionalBtn : drawBtn;
 
-    if (isAdditional && !allowRedraw.checked) {
-      setStatus(globalStatus, 'Check the confirmation box before running an additional draw.', 'error');
-      return;
-    }
+  button.disabled = true;
+  setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Running raffle draw...', '');
 
-    const action = isAdditional ? 'drawAdditional' : 'drawWinners';
-    const button = isAdditional ? drawAdditionalBtn : drawBtn;
+  try {
+    const res = await submitRaffleRequest(action, { winnerCount });
 
-    button.disabled = true;
-    setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Running raffle draw...', '');
-
-    try {
-      const res = await submitRaffleRequest(action, { winnerCount });
-
-      if (!res.ok) {
-        setStatus(
-          globalStatus,
-          (res.message || 'Request failed.') + (res.details ? '\n' + res.details : ''),
-          'error'
-        );
-        button.disabled = false;
-        await loadState();
-        return;
-      }
-
+    if (!res.ok) {
       setStatus(
         globalStatus,
-        (res.message || 'Success.') + (res.details ? '\n' + res.details : ''),
-        'success'
+        (res.message || 'Request failed.') + (res.details ? '\n' + res.details : ''),
+        'error'
       );
-
       button.disabled = false;
       await loadState();
-    } catch (err) {
-      setStatus(globalStatus, err.message || 'Draw failed.', 'error');
-      button.disabled = false;
+      return;
     }
+
+    applyLastDrawText(res.lastDrawText);
+
+    if (Array.isArray(res.winners)) {
+      renderWinners(res.winners);
+      redrawBlock.hidden = false;
+      drawBtn.hidden = true;
+    }
+
+    setStatus(
+      globalStatus,
+      (res.message || 'Success.') + (res.details ? '\n' + res.details : ''),
+      'success'
+    );
+
+    button.disabled = false;
+
+    await loadState();
+  } catch (err) {
+    setStatus(globalStatus, err.message || 'Draw failed.', 'error');
+    button.disabled = false;
   }
+}
 
   async function redrawSelected() {
     const selectedWinnerKeys = getSelectedWinnerKeys();
