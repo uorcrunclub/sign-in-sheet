@@ -952,6 +952,15 @@ textarea.input-error {
 /* =========================
    TOAST CARD
 ========================= */
+.toast-host.center::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  z-index: -1;
+}
+
 .toast-host.center {
   top: 50%;
   left: 50%;
