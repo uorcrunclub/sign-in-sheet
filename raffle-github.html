@@ -39,7 +39,6 @@
           <button id="drawBtn" class="primary-btn" type="button">Draw winner(s)</button>
         </div>
         <p class="meta-line">Last draw: <span id="lastDraw"></span></p>
-        <div id="globalStatus" class="status-text"></div>
       </section>
 
       <section class="card" id="winnersCard" hidden>
@@ -404,7 +403,7 @@ function setStatus(el, message, type = '') {
   }
 
 async function loadState() {
-  setStatus(globalStatus, 'Loading raffle state...', '');
+  setStatus(globalStatus, 'Loading raffle state...', 'loading');
 
   try {
     const res = await submitRaffleRequest('getState');
@@ -445,7 +444,7 @@ async function loadState() {
   const button = isAdditional ? drawAdditionalBtn : drawBtn;
 
   button.disabled = true;
-  setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Running raffle draw...', '');
+  setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Running raffle draw...', 'loading');
 
   try {
     const res = await submitRaffleRequest(action, { winnerCount });
@@ -492,7 +491,7 @@ async function loadState() {
     }
 
     redrawSelectedBtn.disabled = true;
-    setStatus(globalStatus, 'Redrawing selected winner(s)...', '');
+    setStatus(globalStatus, 'Redrawing selected winner(s)...', 'loading');
 
     try {
       const res = await submitRaffleRequest('redrawSelected', { selectedWinnerKeys });
@@ -566,7 +565,7 @@ async function loadState() {
     authCard.hidden = false;
     raffleApp.hidden = true;
     adminKeyInput.value = '';
-    setStatus(authStatus, 'Admin key cleared.', '');
+    setStatus(authStatus, 'Logged Out', 'status');
     setStatus(globalStatus, '');
     winnerList.innerHTML = '';
     winnersCard.hidden = true;
