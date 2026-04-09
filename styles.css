@@ -952,11 +952,20 @@ textarea.input-error {
 /* =========================
    TOAST CARD
 ========================= */
-.toast-host {
-  position: fixed;
+.toast-host.center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.toast-host.top {
   top: max(16px, env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
+}
+
+.toast-host {
+  position: fixed;
   z-index: 9999;
   width: min(92vw, 520px);
   display: flex;
