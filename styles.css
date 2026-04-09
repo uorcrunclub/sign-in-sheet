@@ -1004,11 +1004,13 @@ textarea.input-error {
 }
 
 .header-logo {
+  display: block;           /* prevents weird inline behavior */
   height: 40px;
   width: 40px;
+  min-width: 40px;          /* prevents flex stretch */
+  max-width: 40px;          /* hard cap */
+  object-fit: contain;      /* keeps proportions */
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-
 }
 
 .header-title {
