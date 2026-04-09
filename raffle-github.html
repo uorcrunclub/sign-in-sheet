@@ -215,29 +215,32 @@ function removeToast(immediate = false) {
   }
 }
 
-  function setStatus(el, message, type = '') {
-    if (el) {
-      el.textContent = '';
-      el.className = 'status-text';
-    }
-  
-    if (!message) {
-      removeToast();
-      return;
-    }
-  
-    const toastType =
-      type === 'error' ? 'error' :
-      type === 'success' ? 'success' :
-      type === 'loading' ? 'loading' :
-      'info';
-  
-    showToast(message, toastType, {
-      duration: toastType === 'error' ? { persistent: true, dismissible: true, duration: 0 },
-      persistent: toastType === 'loading',
-      dismissible: toastType !== 'loading'
-    });
+function setStatus(el, message, type = '') {
+  if (el) {
+    el.textContent = '';
+    el.className = 'status-text';
   }
+
+  if (!message) {
+    removeToast();
+    return;
+  }
+
+  const toastType =
+    type === 'error' ? 'error' :
+    type === 'success' ? 'success' :
+    type === 'loading' ? 'loading' :
+    'info';
+
+  const toastOptions =
+    toastType === 'error'
+      ? { persistent: true, dismissible: true, duration: 0 }
+      : toastType === 'loading'
+      ? { persistent: true, dismissible: false, duration: 0 }
+      : { persistent: false, dismissible: true, duration: 6000 };
+
+  showToast(message, toastType, toastOptions);
+}
     
   function applyLastDrawText(value) {
     lastDraw.textContent = value || 'Not yet run today';
