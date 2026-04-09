@@ -233,7 +233,7 @@ function removeToast(immediate = false) {
       'info';
   
     showToast(message, toastType, {
-      duration: toastType === 'error' ? 9000 : 6000,
+      duration: toastType === 'error' ? { persistent: true, dismissible: true, duration: 0 },
       persistent: toastType === 'loading',
       dismissible: toastType !== 'loading'
     });
