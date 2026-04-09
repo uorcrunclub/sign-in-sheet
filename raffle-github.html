@@ -171,8 +171,17 @@
     removeToast(true);
   
     host.classList.remove('top', 'center');
-  
-    if (type === 'error') {
+    host.classList.remove('is-loading', 'is-error');
+
+    if (type === 'loading') {
+      host.classList.add('is-loading');
+    } else if (type === 'error') {
+      host.classList.add('is-error');
+    }
+    
+    const useCenteredOverlay = type === 'error' || type === 'loading';
+    
+    if (useCenteredOverlay) {
       host.classList.add('center');
       if (backdrop) backdrop.classList.add('show');
     } else {
