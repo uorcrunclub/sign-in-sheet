@@ -1373,3 +1373,10 @@ textarea.input-error {
     padding: 14px 16px;
   }
 }
+
+#adminKeyInput {
+  text-align: center;
+  letter-spacing: 0.4em;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
