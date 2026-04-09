@@ -352,11 +352,54 @@ button:disabled,
   color: var(--text);
   border: 1px solid var(--secondary-btn-border);
   flex: 1 1 auto;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 600;
+  transition:
+  background 180ms ease,
+  border-color 180ms ease,
+  color 180ms ease,
+  box-shadow 180ms ease,
+  transform 120ms ease;
 }
 
 .secondary:hover,
 .secondary-btn:hover {
   background: var(--secondary-btn-hover);
+}
+
+/* Disabled */
+.secondary-btn:disabled {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Enabled */
+.secondary-btn:not(:disabled) {
+  background: linear-gradient(135deg, #2f7cff, #4ea3ff);
+  color: #ffffff;
+  border: 1px solid rgba(120, 170, 255, 0.5);
+  box-shadow:
+    0 6px 18px rgba(47, 124, 255, 0.35),
+    0 0 0 1px rgba(120, 170, 255, 0.15);
+}
+
+/* Hover */
+.secondary-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 10px 24px rgba(47, 124, 255, 0.45),
+    0 0 0 1px rgba(120, 170, 255, 0.25);
+}
+
+/* Active */
+.secondary-btn:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow:
+    0 4px 12px rgba(47, 124, 255, 0.35);
 }
 
 .danger-btn {
@@ -912,14 +955,51 @@ textarea.input-error {
    gap: 10px; 
 }
 
-.winner-pill { 
-   display: flex; 
-   align-items: center; 
-   gap: 12px; 
-   padding: 12px 14px; 
-   border-radius: 999px; 
-   border: 1px solid var(--border-color, #ddd); 
-   cursor: pointer; 
+.winner-pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 14px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6edf5;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 120ms ease;
+}
+
+/* Hover */
+.winner-pill:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Selected */
+.winner-pill.selected {
+  background: linear-gradient(135deg, #2f7cff, #4ea3ff);
+  color: #ffffff;
+
+  border-color: rgba(120, 170, 255, 0.6);
+
+  box-shadow:
+    0 6px 18px rgba(47, 124, 255, 0.35),
+    0 0 0 1px rgba(120, 170, 255, 0.2);
+}
+
+/* Tap feel */
+.winner-pill:active {
+  transform: scale(0.97);
 }
 
 .winner-pill input { 
@@ -944,6 +1024,30 @@ textarea.input-error {
    flex: 1 1 auto; 
    min-width: 0; 
 }
+
+/* =========================
+   Checkmark Animations
+========================= */
+.pill-check {
+  font-size: 14px;
+  font-weight: bold;
+
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 160ms ease,
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  color: #ffffff;
+}
+
+/* When selected */
+.winner-pill.selected .pill-check {
+  opacity: 1;
+  transform: scale(1);
+  transition-delay: 40ms;
+}
+
 
 [hidden] {
   display: none !important;
