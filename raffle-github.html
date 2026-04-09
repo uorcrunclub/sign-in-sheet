@@ -129,29 +129,32 @@
   let activeToast = null;
   let activeToastTimer = null;
   
-  function removeToast(immediate = false) {
-    if (!activeToast) return;
-  
-    const toast = activeToast;
-    activeToast = null;
-  
-    if (activeToastTimer) {
-      clearTimeout(activeToastTimer);
-      activeToastTimer = null;
-    }
-  
-    if (immediate) {
-      toast.remove();
-      return;
-    }
-  
-    toast.classList.remove('show');
-    toast.classList.add('hide');
-  
-    window.setTimeout(() => {
-      toast.remove();
-    }, 220);
+function removeToast(immediate = false) {
+  if (!activeToast) return;
+
+  const toast = activeToast;
+  activeToast = null;
+
+  const backdrop = document.getElementById('toastBackdrop');
+  if (backdrop) backdrop.classList.remove('show');
+
+  if (activeToastTimer) {
+    clearTimeout(activeToastTimer);
+    activeToastTimer = null;
   }
+
+  if (immediate) {
+    toast.remove();
+    return;
+  }
+
+  toast.classList.remove('show');
+  toast.classList.add('hide');
+
+  window.setTimeout(() => {
+    toast.remove();
+  }, 220);
+}
 
   function showToast(message, type = 'info', options = {}) {
   const {
@@ -162,16 +165,19 @@
   } = options;
 
   const host = document.getElementById('toastHost');
+  const backdrop = document.getElementById('toastBackdrop');
   if (!host) return;
 
   host.classList.remove('top', 'center');
 
   if (type === 'error') {
     host.classList.add('center');
+    if (backdrop) backdrop.classList.add('show');
   } else {
     host.classList.add('top');
+    if (backdrop) backdrop.classList.remove('show');
   }
-
+    
   removeToast(true);
 
   const toast = document.createElement('div');
