@@ -129,118 +129,166 @@
   let activeToast = null;
   let activeToastTimer = null;
   
-function removeToast(immediate = false) {
-  if (!activeToast) return;
-
-  const toast = activeToast;
-  activeToast = null;
-
-  const backdrop = document.getElementById('toastBackdrop');
-  if (backdrop) backdrop.classList.remove('show');
-
-  if (activeToastTimer) {
-    clearTimeout(activeToastTimer);
-    activeToastTimer = null;
+  function removeToast(immediate = false) {
+    if (!activeToast) return;
+  
+    const toast = activeToast;
+    activeToast = null;
+  
+    const backdrop = document.getElementById('toastBackdrop');
+    if (backdrop) backdrop.classList.remove('show');
+  
+    if (activeToastTimer) {
+      clearTimeout(activeToastTimer);
+      activeToastTimer = null;
+    }
+  
+    if (immediate) {
+      toast.remove();
+      return;
+    }
+  
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+  
+    window.setTimeout(() => {
+      toast.remove();
+    }, 220);
   }
-
-  if (immediate) {
-    toast.remove();
-    return;
-  }
-
-  toast.classList.remove('show');
-  toast.classList.add('hide');
-
-  window.setTimeout(() => {
-    toast.remove();
-  }, 220);
-}
 
   function showToast(message, type = 'info', options = {}) {
-  const {
-    title = '',
-    duration = 7000,
-    dismissible = true,
-    persistent = false
-  } = options;
-
-  const host = document.getElementById('toastHost');
-  const backdrop = document.getElementById('toastBackdrop');
-  if (!host) return;
-
-  host.classList.remove('top', 'center');
-
-  if (type === 'error') {
-    host.classList.add('center');
-    if (backdrop) backdrop.classList.add('show');
-  } else {
-    host.classList.add('top');
-    if (backdrop) backdrop.classList.remove('show');
-  }
+    const {
+      title = '',
+      duration = 7000,
+      dismissible = true,
+      persistent = false
+    } = options;
+  
+    const host = document.getElementById('toastHost');
+    const backdrop = document.getElementById('toastBackdrop');
+    if (!host) return;
+  
+    host.classList.remove('top', 'center');
+  
+    if (type === 'error') {
+      host.classList.add('center');
+      if (backdrop) backdrop.classList.add('show');
+    } else {
+      host.classList.add('top');
+      if (backdrop) backdrop.classList.remove('show');
+    }
+      
+    removeToast(true);
+  
+    const toast = document.createElement('div');
+    toast.className = `toast-card ${type}`;
+  
+    const resolvedTitle =
+      title ||
+      (type === 'error' ? 'Error' :
+       type === 'success' ? '' :
+       type === 'loading' ? '' :
+       'Notice');
+  
+    toast.innerHTML = `
+      <span class="toast-title">${escapeHtml(resolvedTitle)}</span>
+      <div class="toast-message">${escapeHtml(message || '')}</div>
+      ${dismissible ? '<button class="toast-close" type="button">Dismiss</button>' : ''}
+    `;
+  
+    if (dismissible) {
+      toast.querySelector('.toast-close').addEventListener('click', () => removeToast());
+    }
+  
+    host.appendChild(toast);
     
-  removeToast(true);
-
-  const toast = document.createElement('div');
-  toast.className = `toast-card ${type}`;
-
-  const resolvedTitle =
-    title ||
-    (type === 'error' ? 'Error' :
-     type === 'success' ? '' :
-     type === 'loading' ? '' :
-     'Notice');
-
-  toast.innerHTML = `
-    <span class="toast-title">${escapeHtml(resolvedTitle)}</span>
-    <div class="toast-message">${escapeHtml(message || '')}</div>
-    ${dismissible ? '<button class="toast-close" type="button">Dismiss</button>' : ''}
-  `;
-
-  if (dismissible) {
-    toast.querySelector('.toast-close').addEventListener('click', () => removeToast());
+    if (dismissible) {
+      enableToastSwipe(toast);
+    }
+    
+    console.log('toast appended', { message, type, hostFound: !!host });
+    activeToast = toast;
+  
+    requestAnimationFrame(() => {
+      toast.classList.add('show');
+    });
+  
+    if (!persistent && duration > 0) {
+      activeToastTimer = window.setTimeout(() => {
+        removeToast();
+      }, duration);
+    }
   }
 
-  host.appendChild(toast);
-  console.log('toast appended', { message, type, hostFound: !!host });
-  activeToast = toast;
-
-  requestAnimationFrame(() => {
-    toast.classList.add('show');
-  });
-
-  if (!persistent && duration > 0) {
-    activeToastTimer = window.setTimeout(() => {
+  function setStatus(el, message, type = '') {
+    if (el) {
+      el.textContent = '';
+      el.className = 'status-text';
+    }
+  
+    if (!message) {
       removeToast();
-    }, duration);
+      return;
+    }
+  
+    const toastType =
+      type === 'error' ? 'error' :
+      type === 'success' ? 'success' :
+      type === 'loading' ? 'loading' :
+      'info';
+  
+    const toastOptions =
+      toastType === 'error'
+        ? { persistent: true, dismissible: true, duration: 0 }
+        : toastType === 'loading'
+        ? { persistent: true, dismissible: false, duration: 0 }
+        : { persistent: false, dismissible: true, duration: 6000 };
+  
+    showToast(message, toastType, toastOptions);
   }
-}
-
-function setStatus(el, message, type = '') {
-  if (el) {
-    el.textContent = '';
-    el.className = 'status-text';
+  
+  function enableToastSwipe(toast) {
+    let startX = 0;
+    let currentX = 0;
+    let dragging = false;
+  
+    const onPointerDown = (e) => {
+      if (e.pointerType === 'mouse') return;
+      dragging = true;
+      startX = e.clientX;
+      currentX = 0;
+      toast.style.transition = 'none';
+      toast.setPointerCapture?.(e.pointerId);
+    };
+  
+    const onPointerMove = (e) => {
+      if (!dragging) return;
+      currentX = e.clientX - startX;
+      toast.style.transform = `translateX(${currentX}px) scale(1)`;
+      toast.style.opacity = String(Math.max(0.35, 1 - Math.abs(currentX) / 220));
+    };
+  
+    const onPointerUp = () => {
+      if (!dragging) return;
+      dragging = false;
+  
+      const shouldDismiss = Math.abs(currentX) > 90;
+  
+      toast.style.transition = '';
+  
+      if (shouldDismiss) {
+        removeToast();
+      } else {
+        toast.style.transform = '';
+        toast.style.opacity = '';
+      }
+    };
+  
+    toast.addEventListener('pointerdown', onPointerDown);
+    toast.addEventListener('pointermove', onPointerMove);
+    toast.addEventListener('pointerup', onPointerUp);
+    toast.addEventListener('pointercancel', onPointerUp);
   }
-
-  if (!message) {
-    removeToast();
-    return;
-  }
-
-  const toastType =
-    type === 'error' ? 'error' :
-    type === 'success' ? 'success' :
-    type === 'loading' ? 'loading' :
-    'info';
-
-  const toastOptions =
-    toastType === 'error'
-      ? { persistent: true, dismissible: true, duration: 0 }
-      : toastType === 'loading'
-      ? { persistent: true, dismissible: false, duration: 0 }
-      : { persistent: false, dismissible: true, duration: 6000 };
-
-  showToast(message, toastType, toastOptions);
-}
     
   function applyLastDrawText(value) {
     lastDraw.textContent = value || 'Not yet run today';
