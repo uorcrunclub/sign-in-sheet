@@ -168,6 +168,8 @@
     const backdrop = document.getElementById('toastBackdrop');
     if (!host) return;
   
+    removeToast(true);
+  
     host.classList.remove('top', 'center');
   
     if (type === 'error') {
@@ -177,8 +179,6 @@
       host.classList.add('top');
       if (backdrop) backdrop.classList.remove('show');
     }
-      
-    removeToast(true);
   
     const toast = document.createElement('div');
     toast.className = `toast-card ${type}`;
@@ -201,12 +201,11 @@
     }
   
     host.appendChild(toast);
-    
+  
     if (dismissible) {
       enableToastSwipe(toast);
     }
-    
-    console.log('toast appended', { message, type, hostFound: !!host });
+  
     activeToast = toast;
   
     requestAnimationFrame(() => {
