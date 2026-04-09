@@ -952,6 +952,16 @@ textarea.input-error {
 /* =========================
    TOAST CARD
 ========================= */
+.toast-host {
+  position: fixed;
+  z-index: 9999;
+  width: min(92vw, 520px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
 .toast-host.center::before {
   content: '';
   position: fixed;
@@ -971,16 +981,6 @@ textarea.input-error {
   top: max(16px, env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
-}
-
-.toast-host {
-  position: fixed;
-  z-index: 9999;
-  width: min(92vw, 520px);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  pointer-events: none;
 }
 
 .toast-card {
