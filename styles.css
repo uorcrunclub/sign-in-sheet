@@ -995,7 +995,6 @@ textarea.input-error {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 9998;
-
   opacity: 0;
   pointer-events: none;
   transition: opacity 200ms ease;
@@ -1004,6 +1003,16 @@ textarea.input-error {
 .toast-backdrop.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+.toast-host.is-loading + .toast-backdrop.show,
+.toast-backdrop.show.loading-backdrop {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .toast-card {
