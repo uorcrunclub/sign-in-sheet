@@ -66,21 +66,23 @@
    
    --toast-info-title: #9ec5ff;
    --toast-success-title: #7ee2a1;
-   --toast-error-title: #ff9d9d;
+   --toast-error-title: #ff8f8f;
    --toast-loading-title: #9a6700;
       
    --toast-info-ring: rgba(105, 170, 255, 0.08);
    --toast-success-ring: rgba(72, 201, 126, 0.10);
-   --toast-error-ring: rgba(255, 107, 107, 0.12);
+   --toast-error-ring: rgba(255, 107, 107, 0.18);
    --toast-loading-ring: rgba(154, 103, 0, 0.10);
       
    --toast-info-border: rgba(105, 170, 255, 0.28);
    --toast-success-border: rgba(72, 201, 126, 0.30);
-   --toast-error-border: rgba(255, 107, 107, 0.34);
+   --toast-error-border: rgba(255, 107, 107, 0.45);
    --toast-loading-border: rgba(154, 103, 0, 0.24);
    
    --toast-loading-backdrop: rgba(0, 0, 0, 0.45);
    --toast-error-backdrop: rgba(0, 0, 0, 0.78);
+   
+   --toast-error-bg: rgba(255, 80, 80, 0.10);
    
    /* WINNER PILLS */
    --pill-bg: rgba(255, 255, 255, 0.06);
@@ -153,17 +155,19 @@
    
    --toast-info-ring: rgba(0, 95, 184, 0.10);
    --toast-success-ring: rgba(31, 143, 58, 0.10);
-   --toast-error-ring: rgba(198, 40, 40, 0.10);
+   --toast-error-ring: rgba(198, 40, 40, 0.12);
    --toast-loading-ring: rgba(0, 95, 184, 0.10);
      
    --toast-info-border: rgba(0, 95, 184, 0.24);
    --toast-success-border: rgba(31, 143, 58, 0.24);
-   --toast-error-border: rgba(198, 40, 40, 0.24);
+   --toast-error-border: rgba(198, 40, 40, 0.35);
    --toast-loading-border: rgba(0, 95, 184, 0.28);
    
    --toast-loading-backdrop: rgba(255, 255, 255, 0.42);
    --toast-error-backdrop: rgba(255, 255, 255, 0.62);
-   
+
+  --toast-error-bg: rgba(198, 40, 40, 0.08);
+     
    /* WINNER PILLS */
    --pill-bg: rgba(17, 17, 17, 0.04);
    --pill-bg-hover: rgba(17, 17, 17, 0.08);
@@ -1253,9 +1257,16 @@ textarea.input-error {
 }
 
 .toast-card.error {
+  background: linear-gradient(
+    135deg,
+    var(--toast-error-bg),
+    var(--toast-bg)
+  );
+
   border-color: var(--toast-error-border);
+
   box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.20),
+    0 12px 30px rgba(0, 0, 0, 0.22),
     0 0 0 1px var(--toast-error-ring);
 }
 
