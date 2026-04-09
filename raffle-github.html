@@ -136,7 +136,15 @@
     activeToast = null;
   
     const backdrop = document.getElementById('toastBackdrop');
-    if (backdrop) backdrop.classList.remove('show');
+    const host = document.getElementById('toastHost');
+  
+    if (backdrop) {
+      backdrop.classList.remove('show', 'loading-backdrop', 'error-backdrop');
+    }
+  
+    if (host) {
+      host.classList.remove('top', 'center', 'is-loading', 'is-error');
+    }
   
     if (activeToastTimer) {
       clearTimeout(activeToastTimer);
@@ -170,23 +178,29 @@
   
     removeToast(true);
   
-    host.classList.remove('top', 'center');
-    host.classList.remove('is-loading', 'is-error');
-
+    const useCenteredOverlay = type === 'error' || type === 'loading';
+  
+    host.classList.remove('top', 'center', 'is-loading', 'is-error');
+  
+    if (useCenteredOverlay) {
+      host.classList.add('center');
+    } else {
+      host.classList.add('top');
+    }
+  
     if (type === 'loading') {
       host.classList.add('is-loading');
     } else if (type === 'error') {
       host.classList.add('is-error');
     }
-    
-    const useCenteredOverlay = type === 'error' || type === 'loading';
-    
-    if (useCenteredOverlay) {
-      host.classList.add('center');
-      if (backdrop) backdrop.classList.add('show');
-    } else {
-      host.classList.add('top');
-      if (backdrop) backdrop.classList.remove('show');
+  
+    if (backdrop) {
+      backdrop.classList.remove('show', 'loading-backdrop', 'error-backdrop');
+  
+      if (useCenteredOverlay) {
+        backdrop.classList.add('show');
+        backdrop.classList.add(type === 'loading' ? 'loading-backdrop' : 'error-backdrop');
+      }
     }
   
     const toast = document.createElement('div');
@@ -195,12 +209,12 @@
     const resolvedTitle =
       title ||
       (type === 'error' ? 'Error' :
-       type === 'success' ? '' :
-       type === 'loading' ? '' :
+       type === 'success' ? 'Done' :
+       type === 'loading' ? 'Working' :
        'Notice');
   
     toast.innerHTML = `
-      <span class="toast-title">${escapeHtml(resolvedTitle)}</span>
+      ${resolvedTitle ? `<span class="toast-title">${escapeHtml(resolvedTitle)}</span>` : ''}
       <div class="toast-message">${escapeHtml(message || '')}</div>
       ${dismissible ? '<button class="toast-close" type="button">Dismiss</button>' : ''}
     `;
@@ -247,10 +261,12 @@
   
     const toastOptions =
       toastType === 'error'
-        ? { persistent: true, dismissible: true, duration: 0 }
+        ? { persistent: true, dismissible: true, duration: 0, title: 'Error' }
         : toastType === 'loading'
-        ? { persistent: true, dismissible: false, duration: 0 }
-        : { persistent: false, dismissible: true, duration: 6000 };
+        ? { persistent: true, dismissible: false, duration: 0, title: 'Working' }
+        : toastType === 'success'
+        ? { persistent: false, dismissible: true, duration: 5000, title: 'Done' }
+        : { persistent: false, dismissible: true, duration: 6000, title: 'Notice' };
   
     showToast(message, toastType, toastOptions);
   }
@@ -476,7 +492,7 @@
   }
 
 async function loadState() {
-  setStatus(globalStatus, 'Loading raffle state...', 'loading');
+  setStatus(globalStatus, 'Loading raffle data', 'loading');
 
   try {
     const res = await submitRaffleRequest('getState');
@@ -517,7 +533,7 @@ async function loadState() {
   const button = isAdditional ? drawAdditionalBtn : drawBtn;
 
   button.disabled = true;
-  setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Running raffle draw...', 'loading');
+  setStatus(globalStatus, isAdditional ? 'Running additional draw...' : 'Drawing winners', 'loading');
 
   try {
     const res = await submitRaffleRequest(action, { winnerCount });
