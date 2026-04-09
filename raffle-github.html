@@ -103,6 +103,7 @@
   const redrawBlock = document.getElementById('redrawBlock');
   const winnerList = document.getElementById('winnerList');
   const lastDraw = document.getElementById('lastDraw');
+  const globalStatus = null;
 
   const raffleTransportForm = document.getElementById('raffleTransportForm');
   const transportAction = document.getElementById('transportAction');
@@ -186,6 +187,7 @@
     }
   
     host.appendChild(toast);
+    console.log('toast appended', { message, type, hostFound: !!host });
     activeToast = toast;
   
     requestAnimationFrame(() => {
