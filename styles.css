@@ -962,15 +962,6 @@ textarea.input-error {
   pointer-events: none;
 }
 
-.toast-host.center::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(6px);
-  z-index: -1;
-}
-
 .toast-host.center {
   top: 50%;
   left: 50%;
@@ -981,6 +972,24 @@ textarea.input-error {
   top: max(16px, env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
+}
+
+.toast-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9998;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.toast-backdrop.show {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .toast-card {
