@@ -154,52 +154,60 @@
   }
 
   function showToast(message, type = 'info', options = {}) {
-    const {
-      title = '',
-      duration = 7000,
-      dismissible = true,
-      persistent = false
-    } = options;
-  
-    const host = document.getElementById('toastHost');
-    if (!host) return;
-  
-    removeToast(true);
-  
-    const toast = document.createElement('div');
-    toast.className = `toast-card ${type}`;
-  
-    const resolvedTitle =
-      title ||
-      (type === 'error' ? 'Something needs your attention' :
-       type === 'success' ? 'Done' :
-       type === 'loading' ? 'Working' :
-       'Notice');
-  
-    toast.innerHTML = `
-      <span class="toast-title">${escapeHtml(resolvedTitle)}</span>
-      <div class="toast-message">${escapeHtml(message || '')}</div>
-      ${dismissible ? '<button class="toast-close" type="button">Dismiss</button>' : ''}
-    `;
-  
-    if (dismissible) {
-      toast.querySelector('.toast-close').addEventListener('click', () => removeToast());
-    }
-  
-    host.appendChild(toast);
-    console.log('toast appended', { message, type, hostFound: !!host });
-    activeToast = toast;
-  
-    requestAnimationFrame(() => {
-      toast.classList.add('show');
-    });
-  
-    if (!persistent && duration > 0) {
-      activeToastTimer = window.setTimeout(() => {
-        removeToast();
-      }, duration);
-    }
+  const {
+    title = '',
+    duration = 7000,
+    dismissible = true,
+    persistent = false
+  } = options;
+
+  const host = document.getElementById('toastHost');
+  if (!host) return;
+
+  host.classList.remove('top', 'center');
+
+  if (type === 'error') {
+    host.classList.add('center');
+  } else {
+    host.classList.add('top');
   }
+
+  removeToast(true);
+
+  const toast = document.createElement('div');
+  toast.className = `toast-card ${type}`;
+
+  const resolvedTitle =
+    title ||
+    (type === 'error' ? 'Error' :
+     type === 'success' ? '' :
+     type === 'loading' ? '' :
+     'Notice');
+
+  toast.innerHTML = `
+    <span class="toast-title">${escapeHtml(resolvedTitle)}</span>
+    <div class="toast-message">${escapeHtml(message || '')}</div>
+    ${dismissible ? '<button class="toast-close" type="button">Dismiss</button>' : ''}
+  `;
+
+  if (dismissible) {
+    toast.querySelector('.toast-close').addEventListener('click', () => removeToast());
+  }
+
+  host.appendChild(toast);
+  console.log('toast appended', { message, type, hostFound: !!host });
+  activeToast = toast;
+
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
+
+  if (!persistent && duration > 0) {
+    activeToastTimer = window.setTimeout(() => {
+      removeToast();
+    }, duration);
+  }
+}
 
   function setStatus(el, message, type = '') {
     if (el) {
