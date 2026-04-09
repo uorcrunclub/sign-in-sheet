@@ -209,8 +209,8 @@
     const resolvedTitle =
       title ||
       (type === 'error' ? 'Error' :
-       type === 'success' ? 'Done' :
-       type === 'loading' ? 'Working' :
+       type === 'success' ? '' :
+       type === 'loading' ? '' :
        'Notice');
   
     toast.innerHTML = `
