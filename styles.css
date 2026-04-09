@@ -67,17 +67,17 @@
    --toast-info-title: #9ec5ff;
    --toast-success-title: #7ee2a1;
    --toast-error-title: #ff8f8f;
-   --toast-loading-title: #9a6700;
+   --toast-loading-title: #6fb1ff;
       
    --toast-info-ring: rgba(105, 170, 255, 0.08);
    --toast-success-ring: rgba(72, 201, 126, 0.10);
    --toast-error-ring: rgba(255, 107, 107, 0.18);
-   --toast-loading-ring: rgba(154, 103, 0, 0.10);
+   --toast-loading-ring: rgba(47, 124, 255, 0.12);
       
    --toast-info-border: rgba(105, 170, 255, 0.28);
    --toast-success-border: rgba(72, 201, 126, 0.30);
    --toast-error-border: rgba(255, 107, 107, 0.45);
-   --toast-loading-border: rgba(154, 103, 0, 0.24);
+   --toast-loading-border: rgba(47, 124, 255, 0.35);
    
    --toast-loading-backdrop: rgba(0, 0, 0, 0.45);
    --toast-error-backdrop: rgba(0, 0, 0, 0.78);
