@@ -26,8 +26,6 @@
   
 </head>
 <body>
- <body>
- <body>
   <div class="container">
     <div class="card">
       <div class="header setup-guide-header">
@@ -41,7 +39,7 @@
       <div class="content setup-guide">
         <section class="setup-guide-section mt-0">
           <h3 class="section-title mt-0">Quick Setup</h3>
-          <p>Select your device, then tap the button below to open the sign-in app.</p>
+          <p>Select your device below and follow the install steps.</p>
 
           <div class="setup-platform-nav" role="tablist" aria-label="Choose your device">
             <button
@@ -68,44 +66,48 @@
               Android
             </button>
           </div>
-
-          <div class="setup-launch-card">
-            <p class="setup-launch-label" id="setupLaunchLabel">
-              Open the sign-in app in Safari, then add it to your home screen.
-            </p>
-
-            <a
-              id="setupLaunchButton"
-              class="button primary setup-launch-btn"
-              href="https://uorcrunclub.github.io/webapp/waiver.html"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open in Safari
-            </a>
-
-            <p class="helper mt-12" id="setupLaunchHelper">
-              Best results on iPhone and iPad come from Safari.
-            </p>
-          </div>
         </section>
 
+        <!-- iOS Install Helper -->
         <section
           class="setup-guide-section setup-platform-card"
           id="iosCard"
           data-platform="ios"
           aria-labelledby="showIosBtn"
         >
-          <h3 class="section-title mt-0">iPhone and iPad Instructions</h3>
+          <h3 class="section-title mt-0">Install on iPhone or iPad</h3>
 
-          <div class="setup-note compact">
+          <div class="setup-note compact" id="iosBrowserOnlyNote">
             <p><strong>Safari is required.</strong> Do not use Chrome on iPhone or iPad for this setup.</p>
           </div>
 
-          <ol class="setup-steps">
-            <li>Tap the <strong>Open in Safari</strong> button above.</li>
+          <div class="setup-launch-card" id="iosLaunchCard">
+            <p class="setup-launch-label">
+              Open the sign-in app in Safari, then add it to your home screen.
+            </p>
+
+            <a
+              class="button primary setup-launch-btn"
+              href="https://uorcrunclub.github.io/webapp/waiver.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open Sign-In App
+            </a>
+
+            <p class="helper mt-12">
+              After it opens in Safari, tap Share, then tap <strong>Add to Home Screen</strong>.
+            </p>
+          </div>
+
+          <div class="setup-installed-card hidden" id="iosInstalledCard" hidden>
+            <p><strong>Already installed.</strong> This app is currently running from the home screen.</p>
+          </div>
+
+          <ol class="setup-steps" id="iosSteps">
+            <li>Open the sign-in app in Safari.</li>
             <li>
-              In Safari, tap the Share button.
+              Tap the Share button.
               <span class="step-helper">
                 The Share button is the square with the upward arrow at the bottom of the screen.
               </span>
@@ -114,14 +116,9 @@
             <li>Rename it to <strong>UORC Sign-In</strong>.</li>
             <li>Tap <strong>Add</strong>.</li>
           </ol>
-
-          <div class="setup-note">
-            <p>You will now have an app icon on your home screen.</p>
-            <p>It will use the official UORC icon.</p>
-            <p>It should open like a normal app with minimal browser chrome.</p>
-          </div>
         </section>
 
+        <!-- Android Install Helper -->
         <section
           class="setup-guide-section setup-platform-card hidden"
           id="androidCard"
@@ -129,24 +126,51 @@
           aria-labelledby="showAndroidBtn"
           hidden
         >
-          <h3 class="section-title mt-0">Android Instructions</h3>
+          <h3 class="section-title mt-0">Install on Android</h3>
 
-          <ol class="setup-steps">
-            <li>Tap the <strong>Open in Chrome</strong> button above.</li>
-            <li>In Chrome, tap the three-dot menu in the top right.</li>
-            <li>Tap <strong>Add to Home screen</strong>.</li>
-            <li>Confirm the name as <strong>UORC Sign-In</strong>.</li>
-            <li>Tap <strong>Add</strong>.</li>
-          </ol>
+          <div class="setup-launch-card" id="androidInstallPromptCard">
+            <p class="setup-launch-label" id="androidLaunchLabel">
+              Open the sign-in app and install it to your home screen.
+            </p>
 
-          <div class="setup-note">
-            <p>The app icon will appear on your home screen.</p>
-            <p>It will use the UORC icon automatically.</p>
-            <p>It should open full-screen like an app.</p>
+            <a
+              class="button primary setup-launch-btn"
+              id="androidOpenLink"
+              href="https://uorcrunclub.github.io/webapp/waiver.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open Sign-In App
+            </a>
+
+            <button
+              type="button"
+              class="button primary setup-launch-btn hidden"
+              id="androidInstallBtn"
+              hidden
+            >
+              Install App
+            </button>
+
+            <p class="helper mt-12" id="androidPromptHelper">
+              If your browser supports app install, the Install App button will appear automatically.
+            </p>
           </div>
+
+          <div class="setup-installed-card hidden" id="androidInstalledCard" hidden>
+            <p><strong>Already installed.</strong> This app is currently running from the home screen.</p>
+          </div>
+
+          <ol class="setup-steps" id="androidSteps">
+            <li>Open the sign-in app in Chrome.</li>
+            <li>Tap the three-dot menu in the top right.</li>
+            <li>Tap <strong>Add to Home screen</strong> or <strong>Install app</strong>.</li>
+            <li>Confirm the name as <strong>UORC Sign-In</strong>.</li>
+            <li>Tap <strong>Install</strong> or <strong>Add</strong>.</li>
+          </ol>
         </section>
 
-        <section class="setup-guide-section">
+        <section class="setup-guide-section" id="firstTimeSection">
           <h3 class="section-title mt-0">First-Time Use</h3>
 
           <p>
@@ -170,30 +194,49 @@
 
   <script>
     (function () {
+      const storageKey = 'uorc-setup-platform';
       const buttons = document.querySelectorAll('.setup-platform-btn');
       const cards = document.querySelectorAll('.setup-platform-card');
-      const launchButton = document.getElementById('setupLaunchButton');
-      const launchLabel = document.getElementById('setupLaunchLabel');
-      const launchHelper = document.getElementById('setupLaunchHelper');
-      const storageKey = 'uorc-setup-platform';
+      const androidInstallBtn = document.getElementById('androidInstallBtn');
+      const androidOpenLink = document.getElementById('androidOpenLink');
+      const androidPromptHelper = document.getElementById('androidPromptHelper');
+
+      const iosInstalledCard = document.getElementById('iosInstalledCard');
+      const androidInstalledCard = document.getElementById('androidInstalledCard');
+      const iosLaunchCard = document.getElementById('iosLaunchCard');
+      const androidInstallPromptCard = document.getElementById('androidInstallPromptCard');
+      const iosSteps = document.getElementById('iosSteps');
+      const androidSteps = document.getElementById('androidSteps');
+      const iosBrowserOnlyNote = document.getElementById('iosBrowserOnlyNote');
+
       const appUrl = 'https://uorcrunclub.github.io/webapp/waiver.html';
 
-      const platformConfig = {
-        ios: {
-          buttonText: 'Open in Safari',
-          label: 'Open the sign-in app in Safari, then add it to your home screen.',
-          helper: 'Best results on iPhone and iPad come from Safari.'
-        },
-        android: {
-          buttonText: 'Open in Chrome',
-          label: 'Open the sign-in app in Chrome, then add it to your home screen.',
-          helper: 'Best results on Android come from Chrome.'
-        }
-      };
+      let deferredPrompt = null;
+
+      function isIos() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent);
+      }
+
+      function isAndroid() {
+        return /Android/i.test(navigator.userAgent);
+      }
+
+      function isStandalone() {
+        return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      }
+
+      function detectPlatform() {
+        try {
+          const saved = localStorage.getItem(storageKey);
+          if (saved === 'ios' || saved === 'android') return saved;
+        } catch (e) {}
+
+        if (isIos()) return 'ios';
+        if (isAndroid()) return 'android';
+        return 'ios';
+      }
 
       function showPlatform(platform, shouldScroll = true) {
-        const config = platformConfig[platform] || platformConfig.ios;
-
         buttons.forEach((btn) => {
           const isActive = btn.dataset.target === platform;
           btn.classList.toggle('active', isActive);
@@ -205,11 +248,6 @@
           card.classList.toggle('hidden', !isMatch);
           card.hidden = !isMatch;
         });
-
-        launchButton.textContent = config.buttonText;
-        launchButton.href = appUrl;
-        launchLabel.textContent = config.label;
-        launchHelper.textContent = config.helper;
 
         try {
           localStorage.setItem(storageKey, platform);
@@ -223,39 +261,92 @@
         }
       }
 
+      function updateInstalledUi() {
+        const standalone = isStandalone();
+
+        if (standalone) {
+          iosLaunchCard.classList.add('hidden');
+          iosLaunchCard.hidden = true;
+          iosSteps.classList.add('hidden');
+          iosSteps.hidden = true;
+          iosBrowserOnlyNote.classList.add('hidden');
+          iosBrowserOnlyNote.hidden = true;
+          iosInstalledCard.classList.remove('hidden');
+          iosInstalledCard.hidden = false;
+
+          androidInstallPromptCard.classList.add('hidden');
+          androidInstallPromptCard.hidden = true;
+          androidSteps.classList.add('hidden');
+          androidSteps.hidden = true;
+          androidInstalledCard.classList.remove('hidden');
+          androidInstalledCard.hidden = false;
+        } else {
+          iosLaunchCard.classList.remove('hidden');
+          iosLaunchCard.hidden = false;
+          iosSteps.classList.remove('hidden');
+          iosSteps.hidden = false;
+          iosBrowserOnlyNote.classList.remove('hidden');
+          iosBrowserOnlyNote.hidden = false;
+          iosInstalledCard.classList.add('hidden');
+          iosInstalledCard.hidden = true;
+
+          androidInstallPromptCard.classList.remove('hidden');
+          androidInstallPromptCard.hidden = false;
+          androidSteps.classList.remove('hidden');
+          androidSteps.hidden = false;
+          androidInstalledCard.classList.add('hidden');
+          androidInstalledCard.hidden = true;
+        }
+      }
+
+      function updateAndroidInstallUi() {
+        if (deferredPrompt) {
+          androidInstallBtn.classList.remove('hidden');
+          androidInstallBtn.hidden = false;
+          androidOpenLink.classList.add('hidden');
+          androidOpenLink.hidden = true;
+          androidPromptHelper.textContent = 'Tap Install App to open Android’s install prompt.';
+        } else {
+          androidInstallBtn.classList.add('hidden');
+          androidInstallBtn.hidden = true;
+          androidOpenLink.classList.remove('hidden');
+          androidOpenLink.hidden = false;
+          androidPromptHelper.textContent = 'If your browser supports app install, the Install App button will appear automatically.';
+        }
+      }
+
       buttons.forEach((btn) => {
         btn.addEventListener('click', () => {
           showPlatform(btn.dataset.target, true);
         });
       });
 
-      function detectPlatform() {
-        const ua = navigator.userAgent || navigator.vendor || window.opera || '';
-        const saved = (() => {
-          try {
-            return localStorage.getItem(storageKey);
-          } catch (e) {
-            return null;
-          }
-        })();
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        updateAndroidInstallUi();
+      });
 
-        if (saved === 'ios' || saved === 'android') {
-          return saved;
-        }
+      window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        updateAndroidInstallUi();
+        updateInstalledUi();
+      });
 
-        if (/iPad|iPhone|iPod/.test(ua)) {
-          return 'ios';
-        }
+      androidInstallBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
 
-        if (/Android/i.test(ua)) {
-          return 'android';
-        }
-
-        return 'ios';
-      }
+        deferredPrompt.prompt();
+        try {
+          await deferredPrompt.userChoice;
+        } catch (e) {}
+        deferredPrompt = null;
+        updateAndroidInstallUi();
+      });
 
       showPlatform(detectPlatform(), false);
+      updateInstalledUi();
+      updateAndroidInstallUi();
     })();
   </script>
-</body>
 </body>
