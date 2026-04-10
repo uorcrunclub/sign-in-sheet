@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="pageTitle">UORC Sign-In</title>
   
+  <link rel="manifest" href="/webapp/manifest.webmanifest">
+  <meta name="theme-color" content="#0f1115">
+  
   <!-- Browser Cache Buster -->
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
   <meta http-equiv="Cache-Control" content="post-check=0, pre-check=0">
@@ -330,4 +333,14 @@
       updateAndroidInstallUi();
     })();
   </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/webapp/service-worker.js')
+        .catch((error) => {
+          console.error('Service worker registration failed:', error);
+        });
+    });
+  }
+</script>
 </body>
