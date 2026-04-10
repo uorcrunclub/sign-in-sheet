@@ -4,7 +4,7 @@ const APP_ASSETS = [
   '/webapp/',
   '/webapp/index.html',
   '/webapp/waiver.html',
-  '/webapp/docs/quickstart-signing.html',
+  '/webapp/docs/quickstart-signin.html',
   '/webapp/styles.css',
   '/webapp/manifest.webmanifest',
   '/webapp/assets/uorc_app_icon_black.png',
@@ -48,7 +48,7 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(event.request).catch(() => {
-        return caches.match('/webapp/docs/quickstart-signing.html');
+        return caches.match('/webapp/docs/quickstart-signin.html');
       });
     })
   );
