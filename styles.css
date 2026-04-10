@@ -730,10 +730,6 @@ button:disabled,
    WAIVER PAGE
 ========================= */
 
-.waiver-emphasis {
-  font-weight: 700;
-}
-
 .waiver-shell {
   position: relative;
 }
@@ -753,6 +749,8 @@ button:disabled,
     rgba(0, 0, 0, 0),
     var(--panel-2)
   );
+  opacity: 1;
+  transition: opacity 0.2s ease;
 }
 
 .waiver-shell.read-complete::after {
@@ -773,20 +771,20 @@ button:disabled,
   scroll-behavior: smooth;
 }
 
-.waiver-box p {
+.waiver-box .waiver-section {
   margin: 0 0 22px 0;
   padding-bottom: 16px;
   border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 
-.waiver-box p:last-child {
+.waiver-box .waiver-section:last-child {
   margin-bottom: 0;
   padding-bottom: 0;
   border-bottom: none;
 }
 
 .waiver-box a {
-  color: #66b3ff;
+  color: var(--accent);
   word-break: break-word;
 }
 
