@@ -1661,67 +1661,6 @@ textarea.input-error:focus {
   border-color: var(--accent);
 }
 
-.setup-platform-card {
-  scroll-margin-top: 16px;
-}
-
-@media (max-width: 640px) {
-  .setup-platform-nav {
-    flex-direction: column;
-  }
-
-  .setup-platform-btn {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-/* =========================
-   SETUP PLATFORM TOGGLE
-========================= */
-
-.setup-platform-nav {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 18px;
-}
-
-.setup-platform-btn {
-  appearance: none;
-  border: 1px solid var(--secondary-btn-border);
-  background: var(--secondary-btn-bg);
-  color: var(--text);
-  border-radius: 999px;
-  padding: 10px 14px;
-  font: inherit;
-  font-weight: 700;
-  line-height: 1.2;
-  cursor: pointer;
-  transition:
-    background 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease,
-    box-shadow 180ms ease,
-    transform 120ms ease;
-}
-
-.setup-platform-btn:hover {
-  background: var(--secondary-btn-hover);
-}
-
-.setup-platform-btn:focus-visible {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-ring);
-}
-
-.setup-platform-btn.active {
-  background: var(--accent);
-  color: var(--button-text-on-accent, #ffffff);
-  border-color: var(--accent);
-}
-
 .setup-launch-card,
 .setup-installed-card {
   margin-top: 18px;
