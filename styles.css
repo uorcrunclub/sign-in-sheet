@@ -1374,9 +1374,10 @@ textarea.input-error {
   }
 }
 
-#adminKeyInput {
+#adminKeyInput #winnercount{
   text-align: center;
   letter-spacing: 0.4em;
   font-size: 1.4rem;
   font-weight: 600;
 }
+
