@@ -4,14 +4,16 @@
   const { qsa, qs, setHidden, isIos, isAndroid, isStandalone } = window.UORC || {};
 
   const STORAGE_KEY = 'uorc-setup-platform';
-  const APP_URL = 'https://uorcrunclub.github.io/webapp/waiver.html';
-
+  const appUrlMeta = document.querySelector('meta[name="uorc-app-url"]');
+  const APP_URL = appUrlMeta?.content?.trim() || 'https://uorcrunclub.github.io/webapp/waiver.html';
+  
   const buttons = qsa('.setup-platform-btn');
   const cards = qsa('.setup-platform-card');
 
   const androidInstallBtn = qs('#androidInstallBtn');
   const androidOpenLink = qs('#androidOpenLink');
   const androidPromptHelper = qs('#androidPromptHelper');
+  const iosLaunchLink = qs('#iosLaunchLink');
 
   const iosInstalledCard = qs('#iosInstalledCard');
   const androidInstalledCard = qs('#androidInstalledCard');
@@ -75,7 +77,7 @@
     setHidden(androidInstalledCard, !standalone);
   }
 
-  function updateAndroidInstallUi() {
+  function updateLaunchUi() {
     if (!androidInstallBtn || !androidOpenLink || !androidPromptHelper) return;
 
     if (deferredPrompt) {
@@ -89,7 +91,13 @@
         'If your browser supports app install, the Install App button will appear automatically.';
     }
 
-    androidOpenLink.href = APP_URL;
+    if (androidOpenLink) {
+      androidOpenLink.href = APP_URL;
+    }
+    
+    if (iosLaunchLink) {
+      iosLaunchLink.href = APP_URL;
+    }
   }
 
   buttons.forEach((button) => {
