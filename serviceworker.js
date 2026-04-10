@@ -48,7 +48,7 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(event.request).catch(() => {
-        return caches.match('/webapp/docs/quickstart-signin.html');
+        return caches.match('/webapp/waiver.html');
       });
     })
   );
