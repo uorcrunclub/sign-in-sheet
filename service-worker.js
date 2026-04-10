@@ -5,7 +5,7 @@ const APP_ASSETS = [
   '/webapp/index.html',
   '/webapp/waiver.html',
   '/webapp/docs/quickstart-signin.html',
-  '/webapp/styles.css',
+  '/webapp/css/styles.css',
   '/webapp/manifest.webmanifest',
   '/webapp/assets/uorc_app_icon_black.png',
   '/webapp/assets/uorc_app_icon_black_192x192.png',
