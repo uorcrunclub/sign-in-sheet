@@ -2,7 +2,7 @@
   "name": "UORC Sign-In",
   "short_name": "UORC Sign-In",
   "description": "UORC Run Club mobile sign-in app",
-  "start_url": "/webapp/docs/quickstart-signin.html",
+  "start_url": "/webapp/waiver.html",
   "scope": "/webapp/",
   "display": "standalone",
   "orientation": "portrait",
