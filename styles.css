@@ -482,6 +482,12 @@ button:disabled,
   background: var(--accent-hover);
 }
 
+.primary-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .secondary,
 .secondary-btn {
   background: var(--secondary-btn-bg);
@@ -723,6 +729,35 @@ button:disabled,
 /* =========================
    WAIVER PAGE
 ========================= */
+
+.waiver-emphasis {
+  font-weight: 700;
+}
+
+.waiver-shell {
+  position: relative;
+}
+
+.waiver-shell::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  bottom: 1px;
+  height: 42px;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0),
+    var(--panel-2)
+  );
+}
+
+.waiver-shell.read-complete::after {
+  opacity: 0;
+}
 
 .waiver-box {
   position: relative;
