@@ -498,12 +498,14 @@ async function unlockRaffle() {
     setAdminKey(inputValue);
     const res = await submitRaffleRequest('authCheck');
 
-    if (!res.ok) {
-      clearAdminKey();
-      setStatus(authStatus, res.message || 'Invalid admin key.', 'error');
-      unlockBtn.disabled = false;
-      return;
-    }
+  if (!res.ok) {
+    clearAdminKey();
+    adminKeyInput.focus();
+    adminKeyInput.select?.();
+    setStatus(authStatus, res.message || 'Invalid admin key.', 'error');
+    unlockBtn.disabled = false;
+    return;
+  }
 
     authCard.hidden = true;
     raffleApp.hidden = false;
@@ -677,20 +679,21 @@ async function loadState() {
     }
   }
 
-  function forgetKey() {
-    clearAdminKey();
-    authCard.hidden = false;
-    raffleApp.hidden = true;
-    adminKeyInput.value = '';
-    setStatus(authStatus, 'Logged Out', 'status');
-    setStatus(globalStatus, '');
-    winnerList.innerHTML = '';
-    winnersCard.hidden = true;
-    redrawBlock.hidden = true;
-    drawBtn.hidden = false;
-    unlockBtn.disabled = false;
-  }
-
+function forgetKey() {
+  clearAdminKey();
+  authCard.hidden = false;
+  raffleApp.hidden = true;
+  adminKeyInput.value = '';
+  adminKeyInput.focus();
+  setStatus(authStatus, 'Logged Out', 'status');
+  setStatus(globalStatus, '');
+  winnerList.innerHTML = '';
+  winnersCard.hidden = true;
+  redrawBlock.hidden = true;
+  drawBtn.hidden = false;
+  unlockBtn.disabled = false;
+}
+    
   // Button wiring
   authCard.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -710,22 +713,24 @@ async function loadState() {
 window.addEventListener('DOMContentLoaded', async () => {
   drawAdditionalBtn.disabled = !allowRedraw.checked;
 
-  if (!getAdminKey()) {
-    authCard.hidden = false;
-    raffleApp.hidden = true;
-    return;
-  }
+if (!getAdminKey()) {
+  authCard.hidden = false;
+  raffleApp.hidden = true;
+  adminKeyInput.focus();
+  return;
+}
 
   try {
     const res = await submitRaffleRequest('authCheck');
 
-    if (!res.ok) {
-      clearAdminKey();
-      authCard.hidden = false;
-      raffleApp.hidden = true;
-      setStatus(authStatus, res.message || 'Admin key is no longer valid.', 'error');
-      return;
-    }
+  if (!res.ok) {
+    clearAdminKey();
+    authCard.hidden = false;
+    raffleApp.hidden = true;
+    adminKeyInput.focus();
+    setStatus(authStatus, res.message || 'Admin key is no longer valid.', 'error');
+    return;
+  }
 
     authCard.hidden = true;
     raffleApp.hidden = false;
@@ -737,6 +742,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     setStatus(authStatus, err.message || 'Unable to restore admin session.', 'error');
   }
 });
+    
+  adminKeyInput.addEventListener('input', () => {
+    const value = adminKeyInput.value.replace(/\D/g, '');
+    adminKeyInput.value = value;
+  
+    if (value.length === 4) { // or 6 if that's your PIN length
+      unlockRaffle();
+    }
+  });
+    
 </script>
 
 <div id="toastHost" class="toast-host" aria-live="polite" aria-atomic="true"></div>  
