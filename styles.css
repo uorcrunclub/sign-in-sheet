@@ -725,24 +725,34 @@ button:disabled,
 ========================= */
 
 .waiver-box {
+  position: relative;
   background: var(--panel-2);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 18px;
   max-height: 52vh;
   overflow-y: auto;
-  line-height: 1.65;
+  line-height: 1.7;
   font-size: 15px;
   color: var(--text);
   scroll-behavior: smooth;
 }
 
 .waiver-box p {
-  margin: 0 0 18px 0;
+  margin: 0 0 22px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 
 .waiver-box p:last-child {
   margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.waiver-box a {
+  color: #66b3ff;
+  word-break: break-word;
 }
 
 .agree-row {
@@ -976,7 +986,9 @@ tr:last-child td {
 
   .waiver-box {
     max-height: 48vh;
-    font-size: 14px;
+    font-size: 16px;
+    line-height: 1.75;
+    padding: 16px;
   }
 }
 
