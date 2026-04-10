@@ -109,12 +109,12 @@
   window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();
     deferredPrompt = event;
-    updateAndroidInstallUi();
+    updateLaunchUI();
   });
 
   window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
-    updateAndroidInstallUi();
+    updateLaunchUI();
     updateInstalledUi();
   });
 
@@ -131,13 +131,13 @@
       }
 
       deferredPrompt = null;
-      updateAndroidInstallUi();
+      updateLaunchUI();
     });
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     showPlatform(detectPlatform(), false);
     updateInstalledUi();
-    updateAndroidInstallUi();
+    updateLaunchUI();
   });
 })();
