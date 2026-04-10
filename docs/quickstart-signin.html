@@ -26,97 +26,202 @@
   
 </head>
 <body>
+ <body>
   <div class="container">
-  <div class="card">
-    <div class="header setup-guide-header">
-      <div class="eyebrow">UORC</div>
-      <h1>Sign-In App Mobile Setup</h1>
-      <p class="subtext">
-        Add the UORC Sign-In app to your phone or tablet home screen for faster access during check-in.
-      </p>
-    </div>
-
-    <div class="content setup-guide">
-      <section class="setup-guide-section mt-0">
-        <h3 class="section-title mt-0">Quick Setup</h3>
-        <p>This takes about 30 seconds.</p>
-        <p class="mt-12">
-          Use this link to access the sign-in app:
-          <a
-            class="setup-link"
-            href="https://uorcrunclub.github.io/webapp/waiver.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            UORC Sign-In App
-          </a>
+    <div class="card">
+      <div class="header setup-guide-header">
+        <div class="eyebrow">UORC</div>
+        <h1>Sign-In App Mobile Setup</h1>
+        <p class="subtext">
+          Add the UORC Sign-In app to your phone or tablet home screen for faster access during check-in.
         </p>
-      </section>
+      </div>
 
-      <section class="setup-guide-section">
-        <h3 class="section-title mt-0">iPhone and iPad Instructions</h3>
+      <div class="content setup-guide">
+        <section class="setup-guide-section mt-0">
+          <h3 class="section-title mt-0">Quick Setup</h3>
+          <p>This takes about 30 seconds.</p>
+          <p class="mt-12">
+            Use this link to access the sign-in app:
+            <a
+              class="setup-link"
+              href="https://uorcrunclub.github.io/webapp/waiver.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              UORC Sign-In App
+            </a>
+          </p>
 
-        <div class="setup-note compact">
-          <p><strong>Safari is required.</strong> Do not use Chrome on iPhone or iPad for this setup.</p>
-        </div>
+          <div class="setup-platform-nav" role="tablist" aria-label="Choose your device">
+            <button
+              type="button"
+              class="setup-platform-btn active"
+              id="showIosBtn"
+              data-target="ios"
+              role="tab"
+              aria-selected="true"
+              aria-controls="iosCard"
+            >
+              iPhone / iPad
+            </button>
 
-        <ol class="setup-steps">
-          <li>Open the link above in Safari.</li>
-          <li>
-            Tap the Share button.
-            <span class="step-helper">
-              The Share button is the square with the upward arrow at the bottom of the screen.
-            </span>
-          </li>
-          <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
-          <li>Rename it to <strong>UORC Sign-In</strong>.</li>
-          <li>Tap <strong>Add</strong>.</li>
-        </ol>
+            <button
+              type="button"
+              class="setup-platform-btn"
+              id="showAndroidBtn"
+              data-target="android"
+              role="tab"
+              aria-selected="false"
+              aria-controls="androidCard"
+            >
+              Android
+            </button>
+          </div>
+        </section>
 
-        <div class="setup-note">
-          <p>You will now have an app icon on your home screen.</p>
-          <p>It will use the official UORC icon.</p>
-          <p>It should open like a normal app with minimal browser chrome.</p>
-        </div>
-      </section>
+        <section
+          class="setup-guide-section setup-platform-card"
+          id="iosCard"
+          data-platform="ios"
+          aria-labelledby="showIosBtn"
+        >
+          <h3 class="section-title mt-0">iPhone and iPad Instructions</h3>
 
-      <section class="setup-guide-section">
-        <h3 class="section-title mt-0">Android Instructions</h3>
+          <div class="setup-note compact">
+            <p><strong>Safari is required.</strong> Do not use Chrome on iPhone or iPad for this setup.</p>
+          </div>
 
-        <ol class="setup-steps">
-          <li>Open the link above in Chrome.</li>
-          <li>Tap the three-dot menu in the top right.</li>
-          <li>Tap <strong>Add to Home screen</strong>.</li>
-          <li>Confirm the name as <strong>UORC Sign-In</strong>.</li>
-          <li>Tap <strong>Add</strong>.</li>
-        </ol>
-
-        <div class="setup-note">
-          <p>The app icon will appear on your home screen.</p>
-          <p>It will use the UORC icon automatically.</p>
-          <p>It should open full-screen like an app.</p>
-        </div>
-      </section>
-
-      <section class="setup-guide-section">
-        <h3 class="section-title mt-0">First-Time Use</h3>
-
-        <p>
-          The first time you open the app, you may see a Google warning screen.
-        </p>
-
-        <div class="setup-note">
-          <p><strong>If you see “Google hasn’t verified this app,” do this:</strong></p>
-          <ol class="setup-warning-list">
-            <li>Tap <strong>Advanced</strong>.</li>
-            <li>Tap <strong>Go to UORC Sign-In App</strong>.</li>
-            <li>Tap <strong>Allow</strong>.</li>
+          <ol class="setup-steps">
+            <li>Open the link above in Safari.</li>
+            <li>
+              Tap the Share button.
+              <span class="step-helper">
+                The Share button is the square with the upward arrow at the bottom of the screen.
+              </span>
+            </li>
+            <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+            <li>Rename it to <strong>UORC Sign-In</strong>.</li>
+            <li>Tap <strong>Add</strong>.</li>
           </ol>
-        </div>
 
-        <p class="footer-note mb-0">This only needs to be done once.</p>
-      </section>
+          <div class="setup-note">
+            <p>You will now have an app icon on your home screen.</p>
+            <p>It will use the official UORC icon.</p>
+            <p>It should open like a normal app with minimal browser chrome.</p>
+          </div>
+        </section>
+
+        <section
+          class="setup-guide-section setup-platform-card hidden"
+          id="androidCard"
+          data-platform="android"
+          aria-labelledby="showAndroidBtn"
+          hidden
+        >
+          <h3 class="section-title mt-0">Android Instructions</h3>
+
+          <ol class="setup-steps">
+            <li>Open the link above in Chrome.</li>
+            <li>Tap the three-dot menu in the top right.</li>
+            <li>Tap <strong>Add to Home screen</strong>.</li>
+            <li>Confirm the name as <strong>UORC Sign-In</strong>.</li>
+            <li>Tap <strong>Add</strong>.</li>
+          </ol>
+
+          <div class="setup-note">
+            <p>The app icon will appear on your home screen.</p>
+            <p>It will use the UORC icon automatically.</p>
+            <p>It should open full-screen like an app.</p>
+          </div>
+        </section>
+
+        <section class="setup-guide-section">
+          <h3 class="section-title mt-0">First-Time Use</h3>
+
+          <p>
+            The first time you open the app, you may see a Google warning screen.
+          </p>
+
+          <div class="setup-note">
+            <p><strong>If you see “Google hasn’t verified this app,” do this:</strong></p>
+            <ol class="setup-warning-list">
+              <li>Tap <strong>Advanced</strong>.</li>
+              <li>Tap <strong>Go to UORC Sign-In App</strong>.</li>
+              <li>Tap <strong>Allow</strong>.</li>
+            </ol>
+          </div>
+
+          <p class="footer-note mb-0">This only needs to be done once.</p>
+        </section>
+      </div>
     </div>
   </div>
-</div>
+
+  <script>
+    (function () {
+      const buttons = document.querySelectorAll('.setup-platform-btn');
+      const cards = document.querySelectorAll('.setup-platform-card');
+      const storageKey = 'uorc-setup-platform';
+
+      function showPlatform(platform, shouldScroll = true) {
+        buttons.forEach((btn) => {
+          const isActive = btn.dataset.target === platform;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+
+        cards.forEach((card) => {
+          const isMatch = card.dataset.platform === platform;
+          card.classList.toggle('hidden', !isMatch);
+          card.hidden = !isMatch;
+        });
+
+        try {
+          localStorage.setItem(storageKey, platform);
+        } catch (e) {}
+
+        if (shouldScroll) {
+          const activeCard = document.querySelector(`.setup-platform-card[data-platform="${platform}"]`);
+          if (activeCard) {
+            activeCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      }
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          showPlatform(btn.dataset.target, true);
+        });
+      });
+
+      function detectPlatform() {
+        const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+        const saved = (() => {
+          try {
+            return localStorage.getItem(storageKey);
+          } catch (e) {
+            return null;
+          }
+        })();
+
+        if (saved === 'ios' || saved === 'android') {
+          return saved;
+        }
+
+        if (/iPad|iPhone|iPod/.test(ua)) {
+          return 'ios';
+        }
+
+        if (/Android/i.test(ua)) {
+          return 'android';
+        }
+
+        return 'ios';
+      }
+
+      showPlatform(detectPlatform(), false);
+    })();
+  </script>
+</body>
 </body>
