@@ -27,6 +27,7 @@
 </head>
 <body>
  <body>
+ <body>
   <div class="container">
     <div class="card">
       <div class="header setup-guide-header">
@@ -40,18 +41,7 @@
       <div class="content setup-guide">
         <section class="setup-guide-section mt-0">
           <h3 class="section-title mt-0">Quick Setup</h3>
-          <p>This takes about 30 seconds.</p>
-          <p class="mt-12">
-            Use this link to access the sign-in app:
-            <a
-              class="setup-link"
-              href="https://uorcrunclub.github.io/webapp/waiver.html"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              UORC Sign-In App
-            </a>
-          </p>
+          <p>Select your device, then tap the button below to open the sign-in app.</p>
 
           <div class="setup-platform-nav" role="tablist" aria-label="Choose your device">
             <button
@@ -78,6 +68,26 @@
               Android
             </button>
           </div>
+
+          <div class="setup-launch-card">
+            <p class="setup-launch-label" id="setupLaunchLabel">
+              Open the sign-in app in Safari, then add it to your home screen.
+            </p>
+
+            <a
+              id="setupLaunchButton"
+              class="button primary setup-launch-btn"
+              href="https://uorcrunclub.github.io/webapp/waiver.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open in Safari
+            </a>
+
+            <p class="helper mt-12" id="setupLaunchHelper">
+              Best results on iPhone and iPad come from Safari.
+            </p>
+          </div>
         </section>
 
         <section
@@ -93,9 +103,9 @@
           </div>
 
           <ol class="setup-steps">
-            <li>Open the link above in Safari.</li>
+            <li>Tap the <strong>Open in Safari</strong> button above.</li>
             <li>
-              Tap the Share button.
+              In Safari, tap the Share button.
               <span class="step-helper">
                 The Share button is the square with the upward arrow at the bottom of the screen.
               </span>
@@ -122,8 +132,8 @@
           <h3 class="section-title mt-0">Android Instructions</h3>
 
           <ol class="setup-steps">
-            <li>Open the link above in Chrome.</li>
-            <li>Tap the three-dot menu in the top right.</li>
+            <li>Tap the <strong>Open in Chrome</strong> button above.</li>
+            <li>In Chrome, tap the three-dot menu in the top right.</li>
             <li>Tap <strong>Add to Home screen</strong>.</li>
             <li>Confirm the name as <strong>UORC Sign-In</strong>.</li>
             <li>Tap <strong>Add</strong>.</li>
@@ -162,9 +172,28 @@
     (function () {
       const buttons = document.querySelectorAll('.setup-platform-btn');
       const cards = document.querySelectorAll('.setup-platform-card');
+      const launchButton = document.getElementById('setupLaunchButton');
+      const launchLabel = document.getElementById('setupLaunchLabel');
+      const launchHelper = document.getElementById('setupLaunchHelper');
       const storageKey = 'uorc-setup-platform';
+      const appUrl = 'https://uorcrunclub.github.io/webapp/waiver.html';
+
+      const platformConfig = {
+        ios: {
+          buttonText: 'Open in Safari',
+          label: 'Open the sign-in app in Safari, then add it to your home screen.',
+          helper: 'Best results on iPhone and iPad come from Safari.'
+        },
+        android: {
+          buttonText: 'Open in Chrome',
+          label: 'Open the sign-in app in Chrome, then add it to your home screen.',
+          helper: 'Best results on Android come from Chrome.'
+        }
+      };
 
       function showPlatform(platform, shouldScroll = true) {
+        const config = platformConfig[platform] || platformConfig.ios;
+
         buttons.forEach((btn) => {
           const isActive = btn.dataset.target === platform;
           btn.classList.toggle('active', isActive);
@@ -176,6 +205,11 @@
           card.classList.toggle('hidden', !isMatch);
           card.hidden = !isMatch;
         });
+
+        launchButton.textContent = config.buttonText;
+        launchButton.href = appUrl;
+        launchLabel.textContent = config.label;
+        launchHelper.textContent = config.helper;
 
         try {
           localStorage.setItem(storageKey, platform);
